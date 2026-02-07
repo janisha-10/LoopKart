@@ -84,6 +84,18 @@
   <p class="text-center text-sm">© LoopKart</p>
 </section>
 
+<!-- REQUEST SENT POPUP -->
+<div id="requestPopup" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 text-center w-80">
+    <h2 class="text-lg font-semibold mb-2">✅ Request Sent</h2>
+    <p class="text-gray-600 mb-4">Your purchase request has been sent to the seller successfully!</p>
+    <button onclick="closeRequestPopup()"
+      class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+      OK
+    </button>
+  </div>
+</div>
+
 <!-- CHATBOT WINDOW -->
 <div id="chatWindow" 
   class="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl hidden flex-col z-50 overflow-hidden">
@@ -155,14 +167,19 @@ function render(items) {
         <p class="text-sm text-gray-500">Qty: ${i.quantity} ${i.quantityUnit}</p>
         <p class="text-xs text-gray-400">Seller: ${i.seller}</p>
 
-        ${
-          i.seller === currentUser
-            ? `<button onclick="removeItem(${i.id})"
-                 class="text-red-500 text-sm mt-2 hover:underline">
-                 ❌ Delete
-               </button>`
-            : ""
-        }
+        <div class="flex gap-2 mt-3">
+          ${
+            i.seller === currentUser
+              ? `<button onclick="removeItem(${i.id})"
+                   class="text-red-500 text-sm px-3 py-1 border border-red-500 rounded-lg hover:bg-red-50">
+                   ❌ Delete
+                 </button>`
+              : `<button onclick="sendRequest(${i.id})"
+                   class="bg-green-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-600">
+                   📤 Send Request
+                 </button>`
+          }
+        </div>
       </div>`;
   });
 }
@@ -171,6 +188,44 @@ window.removeItem = function(id) {
   materials = materials.filter(m => m.id !== id);
   localStorage.setItem("materials", JSON.stringify(materials));
   render(materials);
+}
+
+window.sendRequest = function(itemId) {
+  const item = materials.find(m => m.id === itemId);
+  
+  if (!item) {
+    alert("Item not found");
+    return;
+  }
+
+  const request = {
+    id: Date.now(),
+    itemId: itemId,
+    itemName: item.name,
+    buyer: currentUser,
+    seller: item.seller,
+    price: item.price,
+    priceUnit: item.priceUnit,
+    quantity: item.quantity,
+    quantityUnit: item.quantityUnit,
+    timestamp: new Date().toISOString(),
+    status: "pending"
+  };
+
+  const requests = JSON.parse(localStorage.getItem("purchaseRequests")) || [];
+  requests.push(request);
+  localStorage.setItem("purchaseRequests", JSON.stringify(requests));
+
+  // Show popup
+  const requestPopup = document.getElementById("requestPopup");
+  requestPopup.classList.remove("hidden");
+  requestPopup.classList.add("flex");
+}
+
+window.closeRequestPopup = function() {
+  const requestPopup = document.getElementById("requestPopup");
+  requestPopup.classList.remove("flex");
+  requestPopup.classList.add("hidden");
 }
 
 searchInput.addEventListener("input", () => {
