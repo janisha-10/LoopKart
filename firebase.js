@@ -11,7 +11,7 @@ import { getAuth } from
 "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 
-// 🔴 PASTE YOUR OWN CONFIG HERE
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCA_2NT3C5MK-uWjekOdsgCO4yyeN6U4aM",
   authDomain: "hacktu-3999c.firebaseapp.com",
@@ -31,5 +31,6 @@ const auth = getAuth(app);
 
 // Export so script.js can use
 export { db, auth };
+
 
 
