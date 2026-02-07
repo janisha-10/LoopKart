@@ -20,7 +20,7 @@
       }
     }
   </script>
-  <style>a
+  <style>
     @keyframes slideUp {
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
@@ -136,7 +136,6 @@
 <script type="module">
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-// ⚠️ REPLACE WITH YOUR API KEY from https://aistudio.google.com/app/apikey
 const API_KEY = "AIzaSyDY-pYXOxrmddjXw5rEn-6ni0VPoMIRndI";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -158,29 +157,37 @@ function render(items) {
   }
 
   items.forEach(i => {
-    list.innerHTML += `
-      <div class="bg-white rounded-xl shadow p-4 space-y-1">
-        <h3 class="font-semibold text-lg">${i.name}</h3>
-        <p class="text-sm text-gray-600">${i.material} • ${i.condition}</p>
-        <p class="text-sm">${i.details || "No details"}</p>
-        <p class="font-medium mt-2">₹${i.price} ${i.priceUnit}</p>
-        <p class="text-sm text-gray-500">Qty: ${i.quantity} ${i.quantityUnit}</p>
-        <p class="text-xs text-gray-400">Seller: ${i.seller}</p>
-
-        <div class="flex gap-2 mt-3">
-          ${
-            i.seller === currentUser
-              ? `<button onclick="removeItem(${i.id})"
-                   class="text-red-500 text-sm px-3 py-1 border border-red-500 rounded-lg hover:bg-red-50">
-                   ❌ Delete
-                 </button>`
-              : `<button onclick="sendRequest(${i.id})"
-                   class="bg-green-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-600">
-                   📤 Send Request
-                 </button>`
-          }
-        </div>
-      </div>`;
+    const isOwnItem = i.seller === currentUser;
+    
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-xl shadow p-4 space-y-1';
+    card.innerHTML = `
+      <h3 class="font-semibold text-lg">${i.name}</h3>
+      <p class="text-sm text-gray-600">${i.material} • ${i.condition}</p>
+      <p class="text-sm">${i.details || "No details"}</p>
+      <p class="font-medium mt-2">₹${i.price} ${i.priceUnit}</p>
+      <p class="text-sm text-gray-500">Qty: ${i.quantity} ${i.quantityUnit}</p>
+      <p class="text-xs text-gray-400">Seller: ${i.seller}</p>
+      <div class="flex gap-2 mt-3"></div>
+    `;
+    
+    const buttonContainer = card.querySelector('div');
+    
+    if (isOwnItem) {
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'text-red-500 text-sm px-3 py-1 border border-red-500 rounded-lg hover:bg-red-50';
+      deleteBtn.innerHTML = '❌ Delete';
+      deleteBtn.onclick = () => removeItem(i.id);
+      buttonContainer.appendChild(deleteBtn);
+    } else {
+      const requestBtn = document.createElement('button');
+      requestBtn.className = 'bg-green-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-600';
+      requestBtn.innerHTML = '📤 Send Request';
+      requestBtn.onclick = () => sendRequest(i.id);
+      buttonContainer.appendChild(requestBtn);
+    }
+    
+    list.appendChild(card);
   });
 }
 
@@ -216,7 +223,6 @@ window.sendRequest = function(itemId) {
   requests.push(request);
   localStorage.setItem("purchaseRequests", JSON.stringify(requests));
 
-  // Show popup
   const requestPopup = document.getElementById("requestPopup");
   requestPopup.classList.remove("hidden");
   requestPopup.classList.add("flex");
@@ -269,7 +275,6 @@ function addMessage(text, isUser = false) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Quick greetings response
 function handleGreeting(msg) {
   const greetings = ['hi', 'hello', 'hey', 'namaste', 'hola', 'hii', 'hiii'];
   const msgLower = msg.toLowerCase().trim();
@@ -286,11 +291,9 @@ function handleGreeting(msg) {
   return null;
 }
 
-// Search material in inventory
 function searchMaterial(query) {
   const queryLower = query.toLowerCase();
   const found = materials.filter(m => {
-    // Search in all relevant fields
     const name = (m.name || '').toLowerCase();
     const material = (m.material || '').toLowerCase();
     const seller = (m.seller || '').toLowerCase();
@@ -316,18 +319,15 @@ async function sendMessage() {
   addMessage(userMsg, true);
   chatInput.value = "";
 
-  // 1. Check for greetings first
   const greetingResponse = handleGreeting(userMsg);
   if (greetingResponse) {
     setTimeout(() => addMessage(greetingResponse), 500);
     return;
   }
 
-  // 2. Check if user is asking for a material
   const foundMaterials = searchMaterial(userMsg);
   
   if (foundMaterials.length > 0) {
-    // Material found!
     setTimeout(() => {
       const item = foundMaterials[0];
       
@@ -346,7 +346,6 @@ async function sendMessage() {
     return;
   }
 
-  // 3. Material not found - show typing
   const typingDiv = document.createElement("div");
   typingDiv.id = "typing";
   typingDiv.className = "chat-message bg-blue-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]";
@@ -354,11 +353,9 @@ async function sendMessage() {
   chatMessages.appendChild(typingDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
-  // Check if message looks like material search
   const materialKeywords = ['find', 'search', 'need', 'want', 'looking', 'get', 'buy', 'material', 'steel', 'iron', 'plastic', 'wood', 'metal', 'cement', 'rod', 'wire', 'scrap', 'aluminium', 'copper', 'glass'];
   const seemsLikeMaterialSearch = materialKeywords.some(kw => userMsg.toLowerCase().includes(kw));
 
-  // 4. If seems like material search, show "not available"
   if (seemsLikeMaterialSearch) {
     setTimeout(() => {
       document.getElementById("typing")?.remove();
@@ -373,7 +370,6 @@ async function sendMessage() {
     return;
   }
 
-  // 5. Try Gemini API for general questions
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
@@ -403,7 +399,6 @@ Respond naturally to: ${userMsg}`;
     console.error("Gemini Error:", err);
     document.getElementById("typing")?.remove();
     
-    // Default fallback if API fails
     const learningResponses = [
       "🤔 Sorry, I'm still learning! I'm best at finding materials for you. Try asking about specific items!",
       "😅 I'm still learning that! But I'm great at searching materials - try me with 'iron rods' or 'plastic'!",
