@@ -54,7 +54,7 @@
     <a href="request.html" class="px-5 py-2 bg-primary text-white rounded-lg">📄 Request</a>
     <a href="upload.html" class="px-5 py-2 bg-gray-200 rounded-lg">⬆ Upload</a>
     <a href="add.html" class="px-5 py-2 bg-gray-200 rounded-lg">➕ Add</a>
-    <button id="chatToggle" class="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">🤖 LoopyBot</button>
+    <button id="chatToggle" class="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">🤖 Bot</button>
   </div>
 </section>
 
@@ -237,10 +237,23 @@ function handleGreeting(msg) {
 // Search material in inventory
 function searchMaterial(query) {
   const queryLower = query.toLowerCase();
-  const found = materials.filter(m => 
-    m.name.toLowerCase().includes(queryLower) ||
-    m.material.toLowerCase().includes(queryLower)
-  );
+  const found = materials.filter(m => {
+    // Search in all relevant fields
+    const name = (m.name || '').toLowerCase();
+    const material = (m.material || '').toLowerCase();
+    const seller = (m.seller || '').toLowerCase();
+    const condition = (m.condition || '').toLowerCase();
+    const details = (m.details || '').toLowerCase();
+    
+    return name.includes(queryLower) || 
+           material.includes(queryLower) ||
+           seller.includes(queryLower) ||
+           condition.includes(queryLower) ||
+           details.includes(queryLower);
+  });
+  
+  console.log('Search query:', query);
+  console.log('Found materials:', found);
   return found;
 }
 
@@ -265,7 +278,18 @@ async function sendMessage() {
     // Material found!
     setTimeout(() => {
       const item = foundMaterials[0];
-      addMessage(`Great! I found ${item.name} 🎉\n\n💰 Price: ₹${item.price} ${item.priceUnit}\n📦 Quantity: ${item.quantity} ${item.quantityUnit}\n✨ Condition: ${item.condition}\n👤 Seller: ${item.seller}`);
+      
+      let message = `Great! I found "${item.name}" 🎉\n\n`;
+      message += `💰 Price: ₹${item.price} ${item.priceUnit}\n`;
+      message += `📦 Quantity: ${item.quantity} ${item.quantityUnit}\n`;
+      message += `✨ Condition: ${item.condition}\n`;
+      message += `🏷️ Material Type: ${item.material}\n`;
+      if (item.details) {
+        message += `📝 Details: ${item.details}\n`;
+      }
+      message += `👤 Seller: ${item.seller}`;
+      
+      addMessage(message);
     }, 500);
     return;
   }
@@ -302,7 +326,7 @@ async function sendMessage() {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const inventoryData = materials.length > 0 
-      ? materials.map(m => `${m.name} (${m.material}, ₹${m.price}, ${m.condition})`).join(", ")
+      ? materials.map(m => `${m.name} (${m.material}, ₹${m.price} ${m.priceUnit}, ${m.condition})`).join(", ")
       : "No items in inventory";
 
     const systemPrompt = `You are Loopy, LoopKart's friendly shopping assistant chatbot.
