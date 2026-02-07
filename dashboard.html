@@ -55,6 +55,11 @@
     <a href="request.html" class="px-5 py-2 bg-primary text-white rounded-lg">📄 Request</a>
     <a href="upload.html" class="px-5 py-2 bg-gray-200 rounded-lg">⬆ Upload</a>
     <a href="add.html" class="px-5 py-2 bg-gray-200 rounded-lg">➕ Add</a>
+    <div id="chatbox">
+  <div id="messages"></div>
+  <input id="userInput" placeholder="Ask about products..." />
+  <button onclick="sendMessage()">Send</button>
+</div>
   </div>
 </section>
 
@@ -275,6 +280,27 @@ searchInput.addEventListener("input", () => {
 
 render(materials);
 </script>
+<script>
+async function sendMessage() {
+  const input = document.getElementById("userInput");
+  const msg = input.value;
 
+  document.getElementById("messages").innerHTML +=
+    `<div><b>You:</b> ${msg}</div>`;
+
+  const res = await fetch("http://localhost:3000/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("messages").innerHTML +=
+    `<div><b>AI:</b> ${data.reply}</div>`;
+
+  input.value = "";
+}
+</script>
 </body>
 </html>
