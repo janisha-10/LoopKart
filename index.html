@@ -71,66 +71,60 @@
     </div>
   </div>
 
-  <!-- RIGHT PANEL -->
-  <div class="w-full md:w-[25%] bg-white flex items-center justify-center">
-    <div class="w-full max-w-md p-8">
+<!-- RIGHT PANEL -->
+<div class="w-full md:w-[25%] bg-white flex items-center justify-center">
+  <div class="w-full max-w-md p-8">
 
-      <!-- TOGGLE -->
-      <div class="relative bg-gray-100 rounded-lg flex mb-6">
-        <button id="loginBtn" type="button"
-          class="w-1/2 py-2 z-10 text-primary font-medium">
-          Sign In
-        </button>
-        <button id="signupBtn" type="button"
-          class="w-1/2 py-2 z-10 text-gray-500 font-medium">
-          Sign Up
-        </button>
-        <div id="slider"
-          class="absolute top-0 left-0 w-1/2 h-full bg-white rounded-lg shadow transition-all duration-300">
-        </div>
+    <!-- TOGGLE -->
+    <div class="relative bg-gray-100 rounded-lg flex mb-6">
+      <button id="tab-login" type="button"
+        class="w-1/2 py-2 z-10 text-primary font-medium">
+        Sign In
+      </button>
+      <button id="tab-signup" type="button"
+        class="w-1/2 py-2 z-10 text-gray-500 font-medium">
+        Sign Up
+      </button>
+      <div id="slider"
+        class="absolute top-0 left-0 w-1/2 h-full bg-white rounded-lg shadow transition-all duration-300">
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <form class="space-y-4">
+
+      <!-- SIGN UP FIELDS -->
+      <div id="signupFields" class="hidden space-y-4">
+        <input type="text" id="company-name" placeholder="Company Name" class="w-full px-4 py-2 border rounded-lg" />
+        <input type="text" id="gstin" placeholder="GSTIN" class="w-full px-4 py-2 border rounded-lg" />
+        <input type="text" id="user-name" placeholder="User Name" class="w-full px-4 py-2 border rounded-lg" />
+        <input type="text" id="designation" placeholder="User Designation" class="w-full px-4 py-2 border rounded-lg" />
+        <input type="tel" id="mobile" placeholder="Work Mobile Number" class="w-full px-4 py-2 border rounded-lg" />
+        <input type="email" id="signup-email" placeholder="Work Email Address" class="w-full px-4 py-2 border rounded-lg" />
+        <textarea id="company-address" placeholder="Company Address" class="w-full px-4 py-2 border rounded-lg"></textarea>
       </div>
 
-      <!-- FORM -->
-      <form class="space-y-4">
+      <!-- SIGN IN FIELDS -->
+      <div id="loginFields" class="space-y-4">
+        <input type="email" id="login-email" placeholder="Work Email Address" class="w-full px-4 py-2 border rounded-lg" />
+      </div>
 
-        <!-- SIGN UP FIELDS -->
-        <div id="signupFields" class="hidden space-y-4">
-          <input type="text" id="company-name" placeholder="Company Name" class="w-full px-4 py-2 border rounded-lg" />
-          <input type="text" id="gstin" placeholder="GSTIN" class="w-full px-4 py-2 border rounded-lg" />
-          <input type="text" id="user-name" placeholder="User Name" class="w-full px-4 py-2 border rounded-lg" />
-          <input type="text" id=" designation" placeholder="User Designation" class="w-full px-4 py-2 border rounded-lg" />
-          <input type="tel" id="mobile" placeholder="Work Mobile Number" class="w-full px-4 py-2 border rounded-lg" />
-          <input type="email" id="signup-email" placeholder="Work Email Address" class="w-full px-4 py-2 border rounded-lg" />
-          <textarea id="company-address" placeholder="Company Address" class="w-full px-4 py-2 border rounded-lg"></textarea>
-        </div>
+      <!-- PASSWORD (SINGLE) -->
+      <input type="password" id="auth-password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg" />
 
-        <!-- SIGN IN FIELDS -->
-        <div id="loginFields" class="space-y-4">
-          <input type="email" id="login-email" placeholder="Work Email Address"
-            class="w-full px-4 py-2 border rounded-lg" />
-        </div>
+      <div id="forgot" class="text-right text-sm text-primary cursor-pointer">
+        Forgot password?
+      </div>
 
-        <!-- PASSWORD -->
-        <input type="password" id="signup-password" placeholder="Password"
-          class="w-full px-4 py-2 border rounded-lg" />
+      <!-- CONTINUE BUTTON -->
+      <button type="button" id="continueBtn" class="w-full bg-primary text-white py-2 rounded-lg font-semibold">
+        Continue
+      </button>
 
-        <div id="forgot" class="text-right text-sm text-primary cursor-pointer">
-          Forgot password?
-        </div>
-
-        <!-- FIXED CONTINUE BUTTON -->
-        <button
-          type="button"
-          onclick="window.location.href='dashboard.html'"
-          class="w-full bg-primary text-white py-2 rounded-lg font-semibold">
-          Continue
-        </button>
-
-      </form>
-
-    </div>
+    </form>
   </div>
 </div>
+
 
 <script>
   const loginBtn = document.getElementById("loginBtn");
