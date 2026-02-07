@@ -35,12 +35,16 @@
 
 <!-- TOP NAV -->
 <header class="bg-white shadow px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 bg-dark text-white flex items-center justify-center rounded font-bold">
+    <div class="flex items-center gap-3">
       <a href="dashboard.html"><img src="./images/logo.png" width="30"></a>
     </div>
     <span class="font-semibold text-lg">LoopKart</span>
+
+  <div class="flex gap-6 text-sm font-medium">
+    <a href="profile.html" class="font-medium hover:text-primary"><img src="./images/profile.png" width="30"></a>
+    <a href="info.html" class="font-medium hover:text-primary"><img src="./images/information.png" width="30"></a>
   </div>
+</header>
 
   <div class="flex gap-6 text-sm font-medium">
     <a href="profile.html"><img src="./images/profile.png" width="30"></a>
@@ -367,6 +371,6 @@ chatInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
 </script>
-
+<script type="module" src="js/script.js"></script>
 </body>
 </html>
