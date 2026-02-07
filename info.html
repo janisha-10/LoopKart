@@ -25,11 +25,12 @@
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
 <!-- TOP NAV -->
-<header class="bg-white shadow px-6 py-4 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-      <img src="./images/logo.png" width="30">
+<header class="bg-white shadow px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div class="flex items-center gap-3">
+    <div class="w-10 h-10 bg-dark text-white flex items-center justify-center rounded font-bold">
+      <a href="dashboard.html"><img src="./images/logo.png" width="30"></a>
+    </div>
     <span class="font-semibold text-lg">LoopKart</span>
-  </div>
 
   <div class="flex gap-6 text-sm font-medium">
     <a href="profile.html" class="font-medium hover:text-primary"><img src="./images/profile.png" width="30"></a>
@@ -72,5 +73,6 @@
 <section class="bg-blackdash text-white px-6 py-6">
   <p class="text-center text-sm">© LoopKart</p>
 </section>
+<script type="module" src="js/script.js"></script>
 </body>
 </html>
