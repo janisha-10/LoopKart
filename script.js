@@ -41,7 +41,7 @@ onAuthStateChanged(auth, (user) => {
 // SIGNUP
 // ===============================
 
-const signupBtn = document.getElementById("signup-btn");
+const signupBtn = document.getElementById("signupBtn");
 
 if (signupBtn) {
   signupBtn.addEventListener("click", async () => {
@@ -89,7 +89,7 @@ if (signupBtn) {
 // LOGIN
 // ===============================
 
-const loginBtn = document.getElementById("login-btn");
+const loginBtn = document.getElementById("loginBtn");
 
 if (loginBtn) {
   loginBtn.addEventListener("click", async () => {
@@ -226,6 +226,7 @@ onAuthStateChanged(auth, (user) => {
     loadProfile();
   }
 });
+
 
 
 
