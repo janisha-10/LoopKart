@@ -89,16 +89,32 @@ if (!localStorage.getItem("username")) {
 }
 
 function uploadMaterial() {
+  // Grab input elements properly
+  const nameInput = document.getElementById("name");
+  const materialInput = document.getElementById("material");
+  const conditionInput = document.getElementById("condition");
+  const detailsInput = document.getElementById("details");
+  const priceInput = document.getElementById("price");
+  const priceUnitInput = document.getElementById("priceUnit");
+  const quantityInput = document.getElementById("quantity");
+  const quantityUnitInput = document.getElementById("quantityUnit");
+
+  // Validate required fields
+  if (!nameInput.value || materialInput.value === "Select material" || conditionInput.value === "Select condition") {
+    alert("Please fill in all required fields");
+    return;
+  }
+
   const item = {
     id: Date.now(),
-    name: name.value,
-    material: material.value,
-    condition: condition.value,
-    details: details.value,
-    price: price.value,
-    priceUnit: priceUnit.value,
-    quantity: quantity.value,
-    quantityUnit: quantityUnit.value,
+    name: nameInput.value,
+    material: materialInput.value,
+    condition: conditionInput.value,
+    details: detailsInput.value,
+    price: priceInput.value,
+    priceUnit: priceUnitInput.value,
+    quantity: quantityInput.value,
+    quantityUnit: quantityUnitInput.value,
     seller: localStorage.getItem("username")
   };
 
@@ -106,8 +122,20 @@ function uploadMaterial() {
   items.push(item);
   localStorage.setItem("materials", JSON.stringify(items));
 
+  // Show popup
+  const popup = document.getElementById("popup");
   popup.classList.remove("hidden");
   popup.classList.add("flex");
+
+  // Optional: clear form
+  nameInput.value = "";
+  materialInput.value = "Select material";
+  conditionInput.value = "Select condition";
+  detailsInput.value = "";
+  priceInput.value = "";
+  priceUnitInput.value = "₹ / kg";
+  quantityInput.value = "";
+  quantityUnitInput.value = "kg";
 }
 
 function goDashboard() {
