@@ -21,42 +21,82 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 //================================
-//PAGE PROTECTION
+// PAGE PROTECTION (optional, uncomment if needed)
 //===============================
 
 /*
 onAuthStateChanged(auth, (user) => {
-
   const currentPage = window.location.pathname;
-
   // If NOT logged in AND not on index page
   if (!user && !currentPage.includes("index.html")) {
     window.location.href = "index.html";
   }
-
 });
 */
 
 // ===============================
-// SIGNUP
+// ELEMENTS
 // ===============================
 
-const signupBtn = document.getElementById("signupBtn");
+const tabLogin = document.getElementById("tab-login");
+const tabSignup = document.getElementById("tab-signup");
+const signupFields = document.getElementById("signupFields");
+const loginFields = document.getElementById("loginFields");
+const passwordField = document.getElementById("auth-password"); // single password input
+const slider = document.getElementById("slider");
+const continueBtn = document.getElementById("continueBtn");
 
-if (signupBtn) {
-  signupBtn.addEventListener("click", async () => {
+// ===============================
+// TAB TOGGLE
+// ===============================
 
-    // Get values
-    const companyName = document.getElementById("company-name").value;
-    const gstin = document.getElementById("gstin").value;
-    const userName = document.getElementById("user-name").value;
-    const designation = document.getElementById("designation").value;
-    const mobile = document.getElementById("mobile").value;
-    const email = document.getElementById("signup-email").value;
-    const address = document.getElementById("company-address").value;
-    const password = document.getElementById("signup-password").value;
+tabLogin?.addEventListener("click", () => {
+  signupFields.classList.add("hidden");
+  loginFields.classList.remove("hidden");
+  slider.style.left = "0%";
+  tabLogin.classList.add("text-primary");
+  tabSignup.classList.remove("text-primary");
+  passwordField.value = ""; // reset password
+});
 
-    try {
+tabSignup?.addEventListener("click", () => {
+  signupFields.classList.remove("hidden");
+  loginFields.classList.add("hidden");
+  slider.style.left = "50%";
+  tabSignup.classList.add("text-primary");
+  tabLogin.classList.remove("text-primary");
+  passwordField.value = ""; // reset password
+});
+
+// ===============================
+// CONTINUE BUTTON FOR LOGIN/SIGNUP
+// ===============================
+
+continueBtn?.addEventListener("click", async () => {
+  const isSignup = !signupFields.classList.contains("hidden"); // determine visible form
+
+  const email = isSignup
+    ? document.getElementById("signup-email").value.trim()
+    : document.getElementById("login-email").value.trim();
+
+  const password = passwordField.value;
+
+  if (!email || !password) {
+    alert("Please enter email and password.");
+    return;
+  }
+
+  try {
+    if (isSignup) {
+      // -----------------------
+      // SIGNUP
+      // -----------------------
+      const companyName = document.getElementById("company-name").value.trim();
+      const gstin = document.getElementById("gstin").value.trim();
+      const userName = document.getElementById("user-name").value.trim();
+      const designation = document.getElementById("designation")?.value.trim();
+      const mobile = document.getElementById("mobile").value.trim();
+      const address = document.getElementById("company-address").value.trim();
 
       // 1️⃣ Create Auth User
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -64,49 +104,31 @@ if (signupBtn) {
 
       // 2️⃣ Store Extra Data in Firestore
       await setDoc(doc(db, "users", user.uid), {
-        companyName: companyName,
-        gstin: gstin,
-        userName: userName,
-        designation: designation,
-        mobile: mobile,
-        email: email,
-        address: address,
+        companyName,
+        gstin,
+        userName,
+        designation,
+        mobile,
+        email,
+        address,
         createdAt: new Date()
       });
 
       alert("Signup successful!");
       window.location.href = "dashboard.html";
 
-    } catch (error) {
-      alert(error.message);
-    }
-
-  });
-}
-
-
-// ===============================
-// LOGIN
-// ===============================
-
-const loginBtn = document.getElementById("loginBtn");
-
-if (loginBtn) {
-  loginBtn.addEventListener("click", async () => {
-
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("signup-password").value;
-
-    try {
+    } else {
+      // -----------------------
+      // LOGIN
+      // -----------------------
       await signInWithEmailAndPassword(auth, email, password);
       alert("Login successful!");
       window.location.href = "dashboard.html";
-    } catch (error) {
-      alert(error.message);
     }
-
-  });
-}
+  } catch (error) {
+    alert(error.message);
+  }
+});
 
 // ===============================
 // ADD PRODUCT
@@ -226,6 +248,7 @@ onAuthStateChanged(auth, (user) => {
     loadProfile();
   }
 });
+
 
 
 
