@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Profile | LoopKart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<!-- TOP BAR -->
+<header class="bg-white shadow px-6 py-4 flex justify-between items-center">
+  <img src="./images/logo.png" width="40">
+  <a href="dashboard.html" class="text-blue-500 font-semibold">← Dashboard</a>
+</header>
+
+<!-- PROFILE -->
+<div class="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-6">
+
+<h2 class="text-xl font-bold mb-6">Profile</h2>
+
+<div class="space-y-4">
+
+<input id="name" class="field" placeholder="Name">
+<input id="email" class="field" placeholder="Email">
+<input id="phone" class="field" placeholder="Phone">
+<input id="company" class="field" placeholder="Company">
+<input id="gstin" class="field" placeholder="GSTIN">
+
+</div>
+
+<div class="flex gap-3 mt-6">
+<button onclick="enableEdit()"
+  class="bg-gray-200 px-4 py-2 rounded">Edit</button>
+
+<button onclick="saveProfile()"
+  class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+</div>
+
+</div>
+
+<style>
+.field{
+width:100%;
+border:1px solid #ddd;
+padding:10px;
+border-radius:8px;
+background:#f9fafb;
+}
+.field:disabled{
+background:#f3f4f6;
+}
+</style>
+
+<script>
+const ids = ["name","email","phone","company","gstin"];
+
+/* LOAD */
+const data = JSON.parse(localStorage.getItem("userProfile")) || {};
+
+ids.forEach(id=>{
+  const el = document.getElementById(id);
+  el.value = data[id] || "";
+  el.disabled = true;
+});
+
+/* EDIT */
+function enableEdit(){
+  ids.forEach(id=>{
+    document.getElementById(id).disabled = false;
+  });
+}
+
+/* SAVE */
+function saveProfile(){
+  const updated = {};
+
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    updated[id] = el.value;
+    el.disabled = true;
+  });
+
+  localStorage.setItem("userProfile", JSON.stringify(updated));
+  localStorage.setItem("username", updated.name);
+
+  alert("Saved ✅");
+}
+</script>
+
+</body>
+</html>
