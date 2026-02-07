@@ -9,16 +9,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      theme: {<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Dashboard | LoopKart</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
       theme: {
         extend: {
           colors: {
@@ -30,18 +20,27 @@
       }
     }
   </script>
+  <style>
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .chat-message {
+      animation: slideUp 0.3s ease-out;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
 <!-- TOP NAV -->
 <header class="bg-white shadow px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-    <div class="flex items-center gap-3">
+  <div class="flex items-center gap-3">
     <div class="w-10 h-10 bg-dark text-white flex items-center justify-center rounded font-bold">
       <a href="dashboard.html"><img src="./images/logo.png" width="30"></a>
     </div>
     <span class="font-semibold text-lg">LoopKart</span>
-    </div>
+  </div>
 
   <div class="flex gap-6 text-sm font-medium">
     <a href="profile.html"><img src="./images/profile.png" width="30"></a>
@@ -55,7 +54,6 @@
     <a href="request.html" class="px-5 py-2 bg-primary text-white rounded-lg">📄 Request</a>
     <a href="upload.html" class="px-5 py-2 bg-gray-200 rounded-lg">⬆ Upload</a>
     <a href="add.html" class="px-5 py-2 bg-gray-200 rounded-lg">➕ Add</a>
- 
   </div>
 </section>
 
@@ -88,7 +86,56 @@
   <p class="text-center text-sm">© LoopKart</p>
 </section>
 
-<script>
+<!-- CHATBOT BUTTON -->
+<button id="chatToggle" 
+  class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-600 to-primary rounded-full shadow-2xl flex items-center justify-center text-3xl hover:scale-110 transition-transform z-50">
+  🤖
+</button>
+
+<!-- CHATBOT WINDOW -->
+<div id="chatWindow" 
+  class="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl hidden flex-col z-50 overflow-hidden">
+  
+  <!-- Chat Header -->
+  <div class="bg-gradient-to-r from-blue-600 to-primary text-white p-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🪄</span>
+      <div>
+        <h3 class="font-bold">Loopy - LoopKart AI</h3>
+        <p class="text-xs opacity-90">Your Shopping Assistant</p>
+      </div>
+    </div>
+    <button id="chatClose" class="text-2xl hover:scale-110 transition-transform">✕</button>
+  </div>
+
+  <!-- Chat Messages -->
+  <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+    <div class="chat-message bg-blue-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]">
+      <p class="text-sm">Hello! I am Loopy 🤖 What material would you like me to find for you?</p>
+    </div>
+  </div>
+
+  <!-- Chat Input -->
+  <div class="p-4 border-t bg-white">
+    <div class="flex gap-2">
+      <input id="chatInput" 
+        placeholder="Type your message..."
+        class="flex-1 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-primary" />
+      <button id="chatSend" 
+        class="bg-primary text-white px-5 py-2 rounded-full font-bold hover:bg-blue-600 transition-colors">
+        ➤
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+// ⚠️ REPLACE WITH YOUR API KEY from https://aistudio.google.com/app/apikey
+const API_KEY = "AIzaSyDY-pYXOxrmddjXw5rEn-6ni0VPoMIRndI";
+const genAI = new GoogleGenerativeAI(API_KEY);
+
 /* USER */
 const currentUser = localStorage.getItem("username") || "Anonymous";
 document.getElementById("username").innerText = currentUser;
@@ -128,7 +175,7 @@ function render(items) {
   });
 }
 
-function removeItem(id) {
+window.removeItem = function(id) {
   materials = materials.filter(m => m.id !== id);
   localStorage.setItem("materials", JSON.stringify(materials));
   render(materials);
@@ -145,6 +192,161 @@ searchInput.addEventListener("input", () => {
 });
 
 render(materials);
+
+/* CHATBOT LOGIC */
+const chatToggle = document.getElementById("chatToggle");
+const chatWindow = document.getElementById("chatWindow");
+const chatClose = document.getElementById("chatClose");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+const chatSend = document.getElementById("chatSend");
+
+chatToggle.addEventListener("click", () => {
+  chatWindow.classList.toggle("hidden");
+  chatWindow.classList.toggle("flex");
+  if (!chatWindow.classList.contains("hidden")) {
+    chatInput.focus();
+  }
+});
+
+chatClose.addEventListener("click", () => {
+  chatWindow.classList.add("hidden");
+  chatWindow.classList.remove("flex");
+});
+
+function addMessage(text, isUser = false) {
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `chat-message ${isUser ? 'bg-primary text-white ml-auto rounded-tl-2xl' : 'bg-blue-100 rounded-tl-none'} rounded-2xl p-3 max-w-[80%]`;
+  msgDiv.innerHTML = `<p class="text-sm whitespace-pre-line">${text}</p>`;
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Quick greetings response
+function handleGreeting(msg) {
+  const greetings = ['hi', 'hello', 'hey', 'namaste', 'hola', 'hii', 'hiii'];
+  const msgLower = msg.toLowerCase().trim();
+  
+  if (greetings.includes(msgLower)) {
+    const responses = [
+      "Hi there! 👋 Looking for any specific material?",
+      "Hello! 😊 How can I help you find materials today?",
+      "Hey! Ready to help you search for materials! What do you need?",
+      "Hi! 🤖 Tell me what material you're looking for!"
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  }
+  return null;
+}
+
+// Search material in inventory
+function searchMaterial(query) {
+  const queryLower = query.toLowerCase();
+  const found = materials.filter(m => 
+    m.name.toLowerCase().includes(queryLower) ||
+    m.material.toLowerCase().includes(queryLower)
+  );
+  return found;
+}
+
+async function sendMessage() {
+  const userMsg = chatInput.value.trim();
+  if (!userMsg) return;
+
+  addMessage(userMsg, true);
+  chatInput.value = "";
+
+  // 1. Check for greetings first
+  const greetingResponse = handleGreeting(userMsg);
+  if (greetingResponse) {
+    setTimeout(() => addMessage(greetingResponse), 500);
+    return;
+  }
+
+  // 2. Check if user is asking for a material
+  const foundMaterials = searchMaterial(userMsg);
+  
+  if (foundMaterials.length > 0) {
+    // Material found!
+    setTimeout(() => {
+      const item = foundMaterials[0];
+      addMessage(`Great! I found ${item.name} 🎉\n\n💰 Price: ₹${item.price} ${item.priceUnit}\n📦 Quantity: ${item.quantity} ${item.quantityUnit}\n✨ Condition: ${item.condition}\n👤 Seller: ${item.seller}`);
+    }, 500);
+    return;
+  }
+
+  // 3. Material not found - show typing
+  const typingDiv = document.createElement("div");
+  typingDiv.id = "typing";
+  typingDiv.className = "chat-message bg-blue-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]";
+  typingDiv.innerHTML = `<p class="text-sm">Typing...</p>`;
+  chatMessages.appendChild(typingDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  // Check if message looks like material search
+  const materialKeywords = ['find', 'search', 'need', 'want', 'looking', 'get', 'buy', 'material', 'steel', 'iron', 'plastic', 'wood', 'metal', 'cement', 'rod', 'wire', 'scrap', 'aluminium', 'copper', 'glass'];
+  const seemsLikeMaterialSearch = materialKeywords.some(kw => userMsg.toLowerCase().includes(kw));
+
+  // 4. If seems like material search, show "not available"
+  if (seemsLikeMaterialSearch) {
+    setTimeout(() => {
+      document.getElementById("typing")?.remove();
+      const notAvailableResponses = [
+        "😔 Sorry, that material is not available at the moment. Would you like me to notify you when it's in stock?",
+        "⚠️ Unfortunately, we don't have that material right now. Can I help you find something similar?",
+        "🔍 That material isn't available currently. Should I add it to your wishlist?",
+        "😕 Not in stock right now! But I can help you search for alternatives!"
+      ];
+      addMessage(notAvailableResponses[Math.floor(Math.random() * notAvailableResponses.length)]);
+    }, 800);
+    return;
+  }
+
+  // 5. Try Gemini API for general questions
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const inventoryData = materials.length > 0 
+      ? materials.map(m => `${m.name} (${m.material}, ₹${m.price}, ${m.condition})`).join(", ")
+      : "No items in inventory";
+
+    const systemPrompt = `You are Loopy, LoopKart's friendly shopping assistant chatbot.
+Current user: ${currentUser}
+Available inventory: ${inventoryData}
+
+RULES:
+- Keep responses SHORT (1-2 sentences max)
+- Be helpful and friendly
+- Focus on helping users find materials
+- If you don't know something, say "I'm still learning that! But I can help you search for materials."
+
+Respond naturally to: ${userMsg}`;
+
+    const result = await model.generateContent(systemPrompt);
+    const response = result.response.text();
+
+    document.getElementById("typing")?.remove();
+    addMessage(response);
+
+  } catch (err) {
+    console.error("Gemini Error:", err);
+    document.getElementById("typing")?.remove();
+    
+    // Default fallback if API fails
+    const learningResponses = [
+      "🤔 Sorry, I'm still learning! I'm best at finding materials for you. Try asking about specific items!",
+      "😅 I'm still learning that! But I'm great at searching materials - try me with 'iron rods' or 'plastic'!",
+      "🎓 Still learning! Right now I can help you find materials in our inventory. What are you looking for?",
+      "💡 Hmm, I'm not sure about that yet! But I can definitely help you search for materials. What do you need?"
+    ];
+    addMessage(learningResponses[Math.floor(Math.random() * learningResponses.length)]);
+  }
+}
+
+chatSend.addEventListener("click", sendMessage);
+chatInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
 </script>
 
 </body>
