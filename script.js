@@ -25,7 +25,7 @@ import {
 //PAGE PROTECTION
 //===============================
 
-
+/*
 onAuthStateChanged(auth, (user) => {
 
   const currentPage = window.location.pathname;
@@ -36,6 +36,7 @@ onAuthStateChanged(auth, (user) => {
   }
 
 });
+*/
 
 // ===============================
 // SIGNUP
@@ -207,4 +208,5 @@ onAuthStateChanged(auth, (user) => {
     loadProfile();
   }
 });
+
 
