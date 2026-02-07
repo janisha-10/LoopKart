@@ -11,13 +11,16 @@
 <body class="bg-gray-100 min-h-screen">
 
 <!-- TOP BAR -->
-<header class="bg-white shadow px-6 py-4 flex justify-between items-center">
-  <div class="flex items-center gap-3">
+<header class="bg-white shadow px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div class="flex items-center gap-3">
     <div class="w-10 h-10 bg-dark text-white flex items-center justify-center rounded font-bold">
-      <img src="./images/logo.png" width="30">
+      <a href="dashboard.html"><img src="./images/logo.png" width="30"></a>
     </div>
     <span class="font-semibold text-lg">LoopKart</span>
-    <a href="dashboard.html" class="text-blue-500 font-medium">← Back</a>
+
+  <div class="flex gap-6 text-sm font-medium">
+    <a href="profile.html" class="font-medium hover:text-primary"><img src="./images/profile.png" width="30"></a>
+    <a href="info.html" class="font-medium hover:text-primary"><img src="./images/information.png" width="30"></a>
   </div>
 </header>
 
@@ -94,6 +97,6 @@ function saveProfile(){
   alert("Saved ✅");
 }
 </script>
-
+<script type="module" src="js/script.js"></script>
 </body>
 </html>
