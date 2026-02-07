@@ -42,29 +42,46 @@ onAuthStateChanged(auth, (user) => {
 // SIGNUP
 // ===============================
 
-const signupForm = document.getElementById("signupTab");
+const signupBtn = document.getElementById("signup-btn");
 
-if (signupTab) {
-  signupTab.addEventListener("submit", async (e) => {
-    e.preventDefault();
+if (signupBtn) {
+  signupBtn.addEventListener("click", async () => {
 
-    const name = document.getElementById("signupName").value;
-    const phone = document.getElementById("signupPhone").value;
-    const email = document.getElementById("signupEmail").value;
-    const password = document.getElementById("signupPassword").value;
+    // Get values
+    const companyName = document.getElementById("company-name").value;
+    const gstin = document.getElementById("gstin").value;
+    const userName = document.getElementById("user-name").value;
+    const designation = document.getElementById("designation").value;
+    const mobile = document.getElementById("mobile").value;
+    const email = document.getElementById("signup-email").value;
+    const address = document.getElementById("company-address").value;
+    const password = document.getElementById("signup-password").value;
 
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    try {
 
-    // Store user info in Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      name: name,
-      phone: phone,
-      email: email,
-      createdAt: serverTimestamp()
-    });
+      // 1️⃣ Create Auth User
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    alert("Signup successful");
+      // 2️⃣ Store Extra Data in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        companyName: companyName,
+        gstin: gstin,
+        userName: userName,
+        designation: designation,
+        mobile: mobile,
+        email: email,
+        address: address,
+        createdAt: new Date()
+      });
+
+      alert("Signup successful!");
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      alert(error.message);
+    }
+
   });
 }
 
@@ -73,22 +90,24 @@ if (signupTab) {
 // LOGIN
 // ===============================
 
-const loginForm = document.getElementById("loginForm");
+const loginBtn = document.getElementById("login-btn");
 
-if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+if (loginBtn) {
+  loginBtn.addEventListener("click", async () => {
 
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("signup-password").value;
 
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Login successful!");
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert(error.message);
+    }
 
-    alert("Login successful");
-    window.location.href = "dashboard.html";
   });
 }
-
 
 // ===============================
 // ADD PRODUCT
@@ -208,5 +227,6 @@ onAuthStateChanged(auth, (user) => {
     loadProfile();
   }
 });
+
 
 
