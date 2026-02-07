@@ -17,7 +17,7 @@ import {
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  onAuthStateChangedsignOut,
+  onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 //================================
@@ -226,6 +226,7 @@ onAuthStateChanged(auth, (user) => {
     loadProfile();
   }
 });
+
 
 
 
