@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | LoopKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0EA5E9",
+            dark: "#0B1C2D"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<!-- TOP BAR -->
+<header class="bg-white shadow px-6 py-4 flex items-center justify-between">
+  <!-- Logo -->
+  <div class="text-xl font-bold text-primary">
+    <img src="./images/logo.png" width="40">
+  </div>
+
+  <!-- Right Tabs -->
+  <div class="flex gap-6 items-center">
+    <a href="dashboard.html" class="font-medium hover:text-primary"><img src="./images/home.png" width="30"></a>
+    <a href="profile.html" class="font-medium hover:text-primary"><img src="./images/profile.png" width="30"></a>
+    <a href="info.html" class="font-medium hover:text-primary"><img src="./images/information.png" width="30"></a>
+  </div>
+</header>
+
+<!-- BLACK DASHBOARD SECTION -->
+<section class="bg-dark px-6 py-8 text-white">
+  <h1 class="text-2xl font-semibold">
+    How to use <div class="text-primary">LoopKart</div>
+  </h1>
+
+  <!-- ACTION BUTTONS -->
+  <div class="mt-6 flex flex-wrap gap-4">
+    Information
+  </div>
+
+  <!-- SEARCH -->
+  <div class="mt-6 max-w-lg flex">
+    <ul>
+      <li>abc</li>
+      <li>abc</li>
+  </div>
+</section>
+
+
+
+</body>
+</html>
