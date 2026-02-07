@@ -140,14 +140,14 @@
   const loginFields = document.getElementById("loginFields");
   const forgot = document.getElementById("forgot");
 
-  loginTab.onclick = () => {
+  loginBtn.onclick = () => {
     slider.style.left = "0%";
     signupFields.classList.add("hidden");
     loginFields.classList.remove("hidden");
     forgot.classList.remove("hidden");
   };
 
-  signupTab.onclick = () => {
+  signupBtn.onclick = () => {
     slider.style.left = "50%";
     signupFields.classList.remove("hidden");
     loginFields.classList.add("hidden");
