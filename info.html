@@ -12,13 +12,73 @@
         extend: {
           colors: {
             primary: "#0EA5E9",
-            dark: "#0B1C2D"
+            dark: "#0B1C2D",
+            blackdash: "#0F172A"
           }
         }
       }
     }
   </script>
 </head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<!-- TOP NAV -->
+<header class="bg-white shadow px-6 py-4 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 bg-dark text-white flex items-center justify-center rounded font-bold">
+      <img src="./images/logo.png" width="30">
+    </div>
+    <span class="font-semibold text-lg">LoopKart</span>
+  </div>
+
+  <div class="flex gap-6 text-sm font-medium">
+    <a href="dashboard.html" class="font-medium hover:text-primary"><img src="./images/home.png" width="30"></a>
+    <a href="profile.html" class="font-medium hover:text-primary"><img src="./images/profile.png" width="30"></a>
+    <a href="info.html" class="font-medium hover:text-primary"><img src="./images/information.png" width="30"></a>
+  </div>
+</header>
+
+<!-- ACTION BAR -->
+<section class="px-6 py-4">
+  <div class="bg-white rounded-xl shadow p-4 flex gap-4 flex-wrap">
+
+    <a href="request.html" class="px-5 py-2 bg-primary text-white rounded-lg">📄 Request</a>
+    <a href="upload.html" class="px-5 py-2 bg-gray-200 rounded-lg">⬆ Upload</a>
+    <a href="add.html" class="px-5 py-2 bg-gray-200 rounded-lg">➕ Add</a>
+
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="px-6 py-6 flex-1 space-y-6">
+
+  <!-- SEARCH -->
+  <div class="bg-white rounded-xl shadow p-6 space-y-4">
+    <h1 class="text-2xl font-semibold">
+      Welcome, <span id="username" class="text-primary"></span> 👋
+    </h1>
+
+    <div class="relative max-w-md">
+      <input id="searchInput"
+        placeholder="Search materials..."
+        class="w-full pl-10 pr-4 py-2 border rounded-lg" />
+      <span class="absolute left-3 top-2.5">🔍</span>
+    </div>
+  </div>
+
+  <!-- MATERIAL LIST -->
+  <div id="materialList"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<section class="bg-blackdash text-white px-6 py-6">
+  <p class="text-center text-sm">© LoopKart</p>
+</section>
+
 
 <body class="bg-gray-100 min-h-screen">
 
