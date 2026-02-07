@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LoopKart | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0EA5E9",
+            panel: "#0B1C2D",
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="h-screen bg-gray-100">
+<div class="flex h-full">
+
+  <!-- LEFT PANEL -->
+  <div class="hidden md:flex w-[45%] bg-panel text-white p-12 flex-col justify-between">
+    <div>
+      <h1 class="text-3xl font-bold mb-6">LoopKart</h1>
+      <h2 class="text-2xl font-semibold mb-4">
+        Company Profile Setup & Business Management
+      </h2>
+      <p class="text-gray-300 mb-4">
+        Manage your company profile, GSTIN verification and dashboards in one platform.
+      </p>
+      <ul class="space-y-3">
+        <li>✔ Company Profile Registration</li>
+        <li>✔ GSTIN Verification</li>
+        <li>✔ Business Analytics Dashboard</li>
+        <li>✔ Document Tracking</li>
+        <li>✔ Multi-user Access</li>
+      </ul>
+    </div>
+    <div class="text-sm text-gray-400">
+      🔒 256-bit SSL • GSTIN Verified • ISO 27001
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="w-full md:w-[55%] bg-white flex items-center justify-center">
+    <div class="w-full max-w-md p-8">
+
+      <!-- TOGGLE -->
+      <div class="relative bg-gray-100 rounded-lg flex mb-6">
+        <button id="loginTab" type="button"
+          class="w-1/2 py-2 z-10 text-primary font-medium">
+          Sign In
+        </button>
+        <button id="signupTab" type="button"
+          class="w-1/2 py-2 z-10 text-gray-500 font-medium">
+          Sign Up
+        </button>
+        <div id="slider"
+          class="absolute top-0 left-0 w-1/2 h-full bg-white rounded-lg shadow transition-all duration-300">
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <form class="space-y-4">
+
+        <!-- SIGN UP FIELDS -->
+        <div id="signupFields" class="hidden space-y-4">
+          <input type="text" placeholder="Company Name" class="w-full px-4 py-2 border rounded-lg" />
+          <input type="text" placeholder="GSTIN" class="w-full px-4 py-2 border rounded-lg" />
+          <input type="text" placeholder="User Name" class="w-full px-4 py-2 border rounded-lg" />
+          <input type="text" placeholder="User Designation" class="w-full px-4 py-2 border rounded-lg" />
+          <input type="tel" placeholder="Work Mobile Number" class="w-full px-4 py-2 border rounded-lg" />
+          <input type="email" placeholder="Work Email Address" class="w-full px-4 py-2 border rounded-lg" />
+          <textarea placeholder="Company Address"
+            class="w-full px-4 py-2 border rounded-lg"></textarea>
+        </div>
+
+        <!-- SIGN IN FIELDS -->
+        <div id="loginFields" class="space-y-4">
+          <input type="email" placeholder="Work Email Address"
+            class="w-full px-4 py-2 border rounded-lg" />
+        </div>
+
+        <!-- PASSWORD -->
+        <input type="password" placeholder="Password"
+          class="w-full px-4 py-2 border rounded-lg" />
+
+        <div id="forgot" class="text-right text-sm text-primary cursor-pointer">
+          Forgot password?
+        </div>
+
+        <!-- FIXED CONTINUE BUTTON -->
+        <button
+          type="button"
+          onclick="window.location.href='dashboard.html'"
+          class="w-full bg-primary text-white py-2 rounded-lg font-semibold">
+          Continue
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const loginTab = document.getElementById("loginTab");
+  const signupTab = document.getElementById("signupTab");
+  const slider = document.getElementById("slider");
+  const signupFields = document.getElementById("signupFields");
+  const loginFields = document.getElementById("loginFields");
+  const forgot = document.getElementById("forgot");
+
+  loginTab.onclick = () => {
+    slider.style.left = "0%";
+    signupFields.classList.add("hidden");
+    loginFields.classList.remove("hidden");
+    forgot.classList.remove("hidden");
+  };
+
+  signupTab.onclick = () => {
+    slider.style.left = "50%";
+    signupFields.classList.remove("hidden");
+    loginFields.classList.add("hidden");
+    forgot.classList.add("hidden");
+  };
+</script>
+
+</body>
+</html>
