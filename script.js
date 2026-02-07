@@ -18,6 +18,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 //================================
@@ -40,10 +41,10 @@ onAuthStateChanged(auth, (user) => {
 // SIGNUP
 // ===============================
 
-const signupForm = document.getElementById("signupForm");
+const signupForm = document.getElementById("signupTab");
 
-if (signupForm) {
-  signupForm.addEventListener("submit", async (e) => {
+if (signupTab) {
+  signupTab.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const name = document.getElementById("signupName").value;
@@ -206,3 +207,4 @@ onAuthStateChanged(auth, (user) => {
     loadProfile();
   }
 });
+
