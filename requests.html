@@ -5,32 +5,149 @@
   <link rel="icon" href="./images/logo.png" type="image/png">
   <title>Requests | LoopKart</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .scroll-container { max-height: 60vh; overflow-y: auto; }
+  </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
-  
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
 <!--Header-->
 <header class="bg-white shadow px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-    <div class="flex items-center gap-3">
+  <div class="flex items-center gap-3">
     <div class="w-10 h-10 bg-dark text-white flex items-center justify-center rounded font-bold">
       <a href="dashboard.html"><img src="./images/logo.png" width="30"></a>
     </div>
     <span class="font-semibold text-lg">LoopKart</span>
-
+  </div>
   <div class="flex gap-6 text-sm font-medium">
     <a href="profile.html" class="font-medium hover:text-primary"><img src="./images/profile.png" width="30"></a>
     <a href="info.html" class="font-medium hover:text-primary"><img src="./images/information.png" width="30"></a>
   </div>
 </header>
 
-<main class="p-6">
-  <div class="bg-white rounded-xl shadow p-6">
-    <h2 class="text-xl font-semibold mb-2">Your Requests</h2>
-    <p class="text-gray-600">
-      All incoming and outgoing requests will appear here.
-    </p>
+<main class="p-6 flex-1 space-y-6">
+
+  <div class="bg-white rounded-xl shadow p-6 space-y-4">
+    <h2 class="text-xl font-semibold">Your Requests Dashboard</h2>
+    <p class="text-gray-600">View all requests you have sent or received. Sellers can approve or reject incoming requests.</p>
+
+    <!-- FILTERS -->
+    <div class="flex gap-4 flex-wrap">
+      <select id="filterStatusBuyer" class="px-3 py-2 border rounded-lg">
+        <option value="">All Buyer Requests</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <select id="filterStatusSeller" class="px-3 py-2 border rounded-lg">
+        <option value="">All Seller Requests</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+
+    <!-- BUYER REQUESTS -->
+    <div>
+      <h3 class="text-lg font-semibold mt-4 mb-2">Buyer Requests</h3>
+      <div id="buyerRequests" class="space-y-2 scroll-container"></div>
+    </div>
+
+    <!-- SELLER REQUESTS -->
+    <div>
+      <h3 class="text-lg font-semibold mt-4 mb-2">Seller Requests</h3>
+      <div id="sellerRequests" class="space-y-2 scroll-container"></div>
+    </div>
   </div>
+
 </main>
-<script type="module" src="script.js"></script>
+
+<script type="module">
+const currentUser = localStorage.getItem("username") || "Anonymous";
+let purchaseRequests = JSON.parse(localStorage.getItem("purchaseRequests")) || [];
+let materials = JSON.parse(localStorage.getItem("materials")) || [];
+
+// UTILITY TO RENDER BUYER REQUESTS
+function renderBuyerRequests(filter="") {
+  const container = document.getElementById("buyerRequests");
+  container.innerHTML = "";
+
+  const requests = purchaseRequests.filter(r => r.buyer === currentUser && (filter === "" || r.status === filter));
+
+  if(requests.length === 0) {
+    container.innerHTML = `<p class="text-gray-500">No buyer requests found.</p>`;
+    return;
+  }
+
+  requests.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "p-3 border rounded-lg flex justify-between items-start flex-col md:flex-row";
+    div.innerHTML = `
+      <div>
+        <p><strong>${r.itemName}</strong> from <span class="text-primary">${r.seller}</span></p>
+        <p>Qty: ${r.quantity} ${r.quantityUnit} • Price: ₹${r.price} ${r.priceUnit}</p>
+        <p class="text-sm text-gray-500">Status: ${r.status}</p>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// UTILITY TO RENDER SELLER REQUESTS
+function renderSellerRequests(filter="") {
+  const container = document.getElementById("sellerRequests");
+  container.innerHTML = "";
+
+  const requests = purchaseRequests.filter(r => r.seller === currentUser && (filter === "" || r.status === filter));
+
+  if(requests.length === 0) {
+    container.innerHTML = `<p class="text-gray-500">No seller requests found.</p>`;
+    return;
+  }
+
+  requests.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "p-3 border rounded-lg flex justify-between items-start flex-col md:flex-row";
+
+    div.innerHTML = `
+      <div>
+        <p><strong>${r.itemName}</strong> requested by <span class="text-primary">${r.buyer}</span></p>
+        <p>Qty: ${r.quantity} ${r.quantityUnit} • Price: ₹${r.price} ${r.priceUnit}</p>
+        <p class="text-sm text-gray-500">Status: ${r.status}</p>
+      </div>
+      <div class="flex gap-2 mt-2 md:mt-0">
+        <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
+        <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
+      </div>
+    `;
+
+    const [approveBtn, rejectBtn] = div.querySelectorAll("button");
+    approveBtn.onclick = () => updateRequestStatus(r.id, "approved");
+    rejectBtn.onclick = () => updateRequestStatus(r.id, "rejected");
+
+    container.appendChild(div);
+  });
+}
+
+// UPDATE REQUEST STATUS
+function updateRequestStatus(requestId, status) {
+  const request = purchaseRequests.find(r => r.id === requestId);
+  if(request) {
+    request.status = status;
+    localStorage.setItem("purchaseRequests", JSON.stringify(purchaseRequests));
+    renderSellerRequests(document.getElementById("filterStatusSeller").value);
+    renderBuyerRequests(document.getElementById("filterStatusBuyer").value);
+  }
+}
+
+// FILTER LISTENERS
+document.getElementById("filterStatusBuyer").addEventListener("change", e => renderBuyerRequests(e.target.value));
+document.getElementById("filterStatusSeller").addEventListener("change", e => renderSellerRequests(e.target.value));
+
+// INITIAL RENDER
+renderBuyerRequests();
+renderSellerRequests();
+</script>
 </body>
 </html>
