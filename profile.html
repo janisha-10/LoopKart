@@ -28,27 +28,25 @@
 
 <h2 class="text-xl font-bold mb-6">Profile</h2>
 
-<div class="space-y-4">
+<div id="profileInfo" class="space-y-4">
 
-<input id="name" class="field" placeholder="Name">
-<input id="email" class="field" placeholder="Email">
-<input id="phone" class="field" placeholder="Phone">
-<input id="company" class="field" placeholder="Company">
-<input id="gstin" class="field" placeholder="GSTIN">
+  <input id="profile-name" class="field w-full px-4 py-2 border rounded-lg" placeholder="Name" />
+  <input id="profile-email" class="field w-full px-4 py-2 border rounded-lg" placeholder="Email" disabled />
+  <input id="profile-phone" class="field w-full px-4 py-2 border rounded-lg" placeholder="Phone" />
+  <input id="profile-company" class="field w-full px-4 py-2 border rounded-lg" placeholder="Company" />
+  <input id="profile-gstin" class="field w-full px-4 py-2 border rounded-lg" placeholder="GSTIN" />
+
+  <!-- Save Changes Button -->
+  <button id="saveProfileBtn" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+    Save Changes
+  </button>
+
+  <!-- Logout Button -->
+  <button id="logoutBtn" class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600">
+    Logout
+  </button>
 
 </div>
-
-<div class="flex gap-3 mt-6">
-<button onclick="enableEdit()"
-  class="bg-gray-200 px-4 py-2 rounded">Edit</button>
-
-<button onclick="saveProfile()"
-  class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
-</div>
-<!-- LOGOUT BUTTON -->
-<button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-  Logout
-</button>
 
 </div>
 
