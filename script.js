@@ -21,24 +21,9 @@ import {
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-//================================
-// PAGE PROTECTION (optional, uncomment if needed)
-//===============================
-
-/*
-onAuthStateChanged(auth, (user) => {
-  const currentPage = window.location.pathname;
-  // If NOT logged in AND not on index page
-  if (!user && !currentPage.includes("index.html")) {
-    window.location.href = "index.html";
-  }
-});
-*/
-
 // ===============================
 // ELEMENTS
 // ===============================
-
 const tabLogin = document.getElementById("tab-login");
 const tabSignup = document.getElementById("tab-signup");
 const signupFields = document.getElementById("signupFields");
@@ -48,16 +33,15 @@ const slider = document.getElementById("slider");
 const continueBtn = document.getElementById("continueBtn");
 
 // ===============================
-// TAB TOGGLE
+// TOGGLE LOGIN / SIGNUP TABS
 // ===============================
-
 tabLogin?.addEventListener("click", () => {
   signupFields.classList.add("hidden");
   loginFields.classList.remove("hidden");
   slider.style.left = "0%";
   tabLogin.classList.add("text-primary");
   tabSignup.classList.remove("text-primary");
-  passwordField.value = ""; // reset password
+  passwordField.value = ""; // reset password field
 });
 
 tabSignup?.addEventListener("click", () => {
@@ -66,21 +50,20 @@ tabSignup?.addEventListener("click", () => {
   slider.style.left = "50%";
   tabSignup.classList.add("text-primary");
   tabLogin.classList.remove("text-primary");
-  passwordField.value = ""; // reset password
+  passwordField.value = ""; // reset password field
 });
 
 // ===============================
-// CONTINUE BUTTON FOR LOGIN/SIGNUP
+// CONTINUE BUTTON (SIGNUP / LOGIN)
 // ===============================
-
 continueBtn?.addEventListener("click", async () => {
-  const isSignup = !signupFields.classList.contains("hidden"); // determine visible form
+  const isSignup = !signupFields.classList.contains("hidden"); // visible form
 
   const email = isSignup
     ? document.getElementById("signup-email").value.trim()
     : document.getElementById("login-email").value.trim();
 
-  const password = passwordField.value;
+  const password = passwordField.value.trim();
 
   if (!email || !password) {
     alert("Please enter email and password.");
@@ -89,9 +72,7 @@ continueBtn?.addEventListener("click", async () => {
 
   try {
     if (isSignup) {
-      // -----------------------
       // SIGNUP
-      // -----------------------
       const companyName = document.getElementById("company-name").value.trim();
       const gstin = document.getElementById("gstin").value.trim();
       const userName = document.getElementById("user-name").value.trim();
@@ -99,11 +80,11 @@ continueBtn?.addEventListener("click", async () => {
       const mobile = document.getElementById("mobile").value.trim();
       const address = document.getElementById("company-address").value.trim();
 
-      // 1️⃣ Create Auth User
+      // 1️⃣ Create Firebase Auth User
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // 2️⃣ Store Extra Data in Firestore
+      // 2️⃣ Store extra data in Firestore
       await setDoc(doc(db, "users", user.uid), {
         companyName,
         gstin,
@@ -119,9 +100,7 @@ continueBtn?.addEventListener("click", async () => {
       window.location.href = "dashboard.html";
 
     } else {
-      // -----------------------
       // LOGIN
-      // -----------------------
       await signInWithEmailAndPassword(auth, email, password);
       alert("Login successful!");
       window.location.href = "dashboard.html";
@@ -132,44 +111,13 @@ continueBtn?.addEventListener("click", async () => {
 });
 
 // ===============================
-// ADD PRODUCT
+// WELCOME USERNAME
 // ===============================
-
-const addProductForm = document.getElementById("addProductForm");
-
-if (addProductForm) {
-  addProductForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const user = auth.currentUser;
-
-    const title = document.getElementById("title").value;
-    const material = document.getElementById("material").value;
-    const condition = document.getElementById("condition").value;
-    const price = document.getElementById("price").value;
-    const quantity = document.getElementById("quantity").value;
-
-    await addDoc(collection(db, "products"), {
-      title: title,
-      material: material,
-      condition: condition,
-      price: price,
-      quantity: quantity,
-      sellerId: user.uid,
-      createdAt: serverTimestamp()
-    });
-
-    alert("Product Uploaded");
-  });
-}
-
-//username
-//welcome person
 const usernameSpan = document.getElementById("dashboardUsername");
 
 async function loadUsername() {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user || !usernameSpan) return;
 
   try {
     const userQuery = query(collection(db, "users"), where("__name__", "==", user.uid));
@@ -187,28 +135,91 @@ async function loadUsername() {
   }
 }
 
-// Automatically update when auth state changes
+// ===============================
+// PAGE PROTECTION + LOAD USERNAME
+// ===============================
 onAuthStateChanged(auth, user => {
   const currentPage = window.location.pathname;
 
   if (user) {
-    // User is logged in, load their username
+    // Load username and profile if applicable
     loadUsername();
+    loadProfile?.();
   } else {
-    // Only redirect if user is not logged in AND NOT already on the login/index page
-    if (!currentPage.includes("index.html")) {
+    // Only redirect if user is not logged in AND NOT already on index page
+    if (!currentPage.endsWith("index.html") && currentPage !== "/") {
       window.location.href = "index.html";
     }
-    // If already on index.html, do nothing — prevents reload loops
+  }
+});
+
+// ===============================
+// LOAD PROFILE DATA
+// ===============================
+async function loadProfile() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    const userQuery = query(collection(db, "users"), where("__name__", "==", user.uid));
+    const userDocs = await getDocs(userQuery);
+
+    if (userDocs.empty) return;
+
+    userDocs.forEach(docSnap => {
+      const data = docSnap.data();
+      document.getElementById("profile-name").value = data.userName || "";
+      document.getElementById("profile-phone").value = data.mobile || "";
+      document.getElementById("profile-company").value = data.companyName || "";
+      document.getElementById("profile-gstin").value = data.gstin || "";
+    });
+  } catch (error) {
+    alert("Error loading profile: " + error.message);
+  }
+}
+
+// ===============================
+// SAVE PROFILE UPDATES
+// ===============================
+const saveProfileBtn = document.getElementById("saveProfileBtn");
+saveProfileBtn?.addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return alert("No user logged in.");
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const updatedData = {
+      userName: document.getElementById("profile-name").value.trim(),
+      mobile: document.getElementById("profile-phone").value.trim(),
+      companyName: document.getElementById("profile-company").value.trim(),
+      gstin: document.getElementById("profile-gstin").value.trim(),
+    };
+    await updateDoc(userRef, updatedData);
+    alert("Profile updated successfully!");
+    loadUsername(); // update welcome name immediately
+  } catch (error) {
+    alert("Error updating profile: " + error.message);
+  }
+});
+
+// ===============================
+// LOGOUT
+// ===============================
+const logoutBtn = document.getElementById("logoutBtn");
+logoutBtn?.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    alert("Logged out successfully!");
+    window.location.href = "index.html";
+  } catch (error) {
+    alert("Error logging out: " + error.message);
   }
 });
 
 // ===============================
 // LOAD PRODUCTS (Dashboard)
 // ===============================
-
 async function loadProducts() {
-
   const productList = document.getElementById("productList");
   if (!productList) return;
 
@@ -218,7 +229,6 @@ async function loadProducts() {
 
   snapshot.forEach((docSnap) => {
     const data = docSnap.data();
-
     productList.innerHTML += `
       <div>
         <h3>${data.title}</h3>
@@ -226,9 +236,7 @@ async function loadProducts() {
         <p>Condition: ${data.condition}</p>
         <p>Price: ₹${data.price}</p>
         <p>Quantity: ${data.quantity}</p>
-        <button onclick="sendRequest('${docSnap.id}')">
-          Send Request
-        </button>
+        <button onclick="sendRequest('${docSnap.id}')">Send Request</button>
       </div>
       <hr>
     `;
@@ -237,14 +245,12 @@ async function loadProducts() {
 
 loadProducts();
 
-
 // ===============================
 // SEND REQUEST
 // ===============================
-
 window.sendRequest = async function(productId) {
-
   const user = auth.currentUser;
+  if (!user) return alert("Login to send request.");
 
   await addDoc(collection(db, "requests"), {
     productId: productId,
@@ -256,85 +262,30 @@ window.sendRequest = async function(productId) {
   alert("Request Sent");
 };
 
-
 // ===============================
-// LOAD USER PROFILE
+// ADD PRODUCT FORM
 // ===============================
-
-async function loadProfile() {
+const addProductForm = document.getElementById("addProductForm");
+addProductForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) return alert("Login to add product.");
 
-  try {
-    // Query user document
-    const userQuery = query(collection(db, "users"), where("__name__", "==", user.uid));
-    const userDocs = await getDocs(userQuery);
+  const title = document.getElementById("title").value.trim();
+  const material = document.getElementById("material").value.trim();
+  const condition = document.getElementById("condition").value.trim();
+  const price = document.getElementById("price").value.trim();
+  const quantity = document.getElementById("quantity").value.trim();
 
-    if (userDocs.empty) return;
+  await addDoc(collection(db, "products"), {
+    title,
+    material,
+    condition,
+    price,
+    quantity,
+    sellerId: user.uid,
+    createdAt: serverTimestamp()
+  });
 
-    userDocs.forEach(docSnap => {
-      const data = docSnap.data();
-
-      // Populate inputs
-      document.getElementById("profile-name").value = data.userName || "";
-      document.getElementById("profile-phone").value = data.mobile || "";
-      document.getElementById("profile-company").value = data.companyName || "";
-      document.getElementById("profile-gstin").value = data.gstin || "";
-    });
-  } catch (error) {
-    alert("Error loading profile: " + error.message);
-  }
-}
-
-// Save profile updates
-const saveProfileBtn = document.getElementById("saveProfileBtn");
-saveProfileBtn?.addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (!user) return alert("No user logged in.");
-
-  try {
-    const userRef = doc(db, "users", user.uid);
-
-    const updatedData = {
-      userName: document.getElementById("profile-name").value.trim(),
-      mobile: document.getElementById("profile-phone").value.trim(),
-      companyName: document.getElementById("profile-company").value.trim(),
-      gstin: document.getElementById("profile-gstin").value.trim(),
-    };
-
-    await updateDoc(userRef, updatedData);
-    alert("Profile updated successfully!");
-  } catch (error) {
-    alert("Error updating profile: " + error.message);
-  }
+  alert("Product Uploaded");
 });
-
-// Logout
-const logoutBtn = document.getElementById("logoutBtn");
-logoutBtn?.addEventListener("click", async () => {
-  try {
-    await signOut(auth);
-    alert("Logged out successfully!");
-    window.location.href = "index.html";
-  } catch (error) {
-    alert("Error logging out: " + error.message);
-  }
-});
-/*
-// Load profile on page load if user is logged in
-onAuthStateChanged(auth, user => {
-  if (user) {
-    loadProfile();
-  } else {
-    // Redirect to login if not logged in
-    window.location.href = "index.html";
-  }
-});*/
-
-
-
-
-
-
-
-
