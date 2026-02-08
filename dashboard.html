@@ -25,9 +25,7 @@
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-    .chat-message {
-      animation: slideUp 0.3s ease-out;
-    }
+    .chat-message { animation: slideUp 0.3s ease-out; }
   </style>
 </head>
 
@@ -35,10 +33,10 @@
 
 <!-- TOP NAV -->
 <header class="bg-white shadow px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-    <div class="flex items-center gap-3">
-      <a href="dashboard.html"><img src="./images/logo.png" width="30"></a>
-    </div>
-    <span class="font-semibold text-lg">LoopKart</span>
+  <div class="flex items-center gap-3">
+    <a href="dashboard.html"><img src="./images/logo.png" width="30"></a>
+  </div>
+  <span class="font-semibold text-lg">LoopKart</span>
 
   <div class="flex gap-6 text-sm font-medium">
     <a href="profile.html" class="font-medium hover:text-primary"><img src="./images/profile.png" width="30"></a>
@@ -73,8 +71,7 @@
   </div>
 
   <!-- MATERIAL LIST -->
-  <div id="materialList"
-    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+  <div id="materialList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
   </div>
 
 </main>
@@ -84,15 +81,21 @@
   <p class="text-center text-sm">© LoopKart</p>
 </section>
 
-<!-- REQUEST SENT POPUP -->
+<!-- REQUEST POPUP -->
 <div id="requestPopup" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
   <div class="bg-white rounded-xl p-6 text-center w-80">
     <h2 class="text-lg font-semibold mb-2">✅ Request Sent</h2>
     <p class="text-gray-600 mb-4">Your purchase request has been sent to the seller successfully!</p>
-    <button onclick="closeRequestPopup()"
-      class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
-      OK
-    </button>
+    <button onclick="closeRequestPopup()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">OK</button>
+  </div>
+</div>
+
+<!-- SELLER REQUEST MANAGEMENT POPUP -->
+<div id="manageRequestPopup" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 text-center w-80 max-h-[70vh] overflow-y-auto">
+    <h2 class="text-lg font-semibold mb-2">📬 Pending Requests</h2>
+    <div id="pendingRequestsContainer" class="space-y-3 text-left"></div>
+    <button onclick="closeManageRequestPopup()" class="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 mt-4">Close</button>
   </div>
 </div>
 
@@ -122,13 +125,9 @@
   <!-- Chat Input -->
   <div class="p-4 border-t bg-white">
     <div class="flex gap-2">
-      <input id="chatInput" 
-        placeholder="Type your message..."
+      <input id="chatInput" placeholder="Type your message..."
         class="flex-1 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-primary" />
-      <button id="chatSend" 
-        class="bg-primary text-white px-5 py-2 rounded-full font-bold hover:bg-blue-600 transition-colors">
-        ➤
-      </button>
+      <button id="chatSend" class="bg-primary text-white px-5 py-2 rounded-full font-bold hover:bg-blue-600 transition-colors">➤</button>
     </div>
   </div>
 </div>
@@ -143,11 +142,13 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 const currentUser = localStorage.getItem("username") || "Anonymous";
 document.getElementById("username").innerText = currentUser;
 
-/* MATERIALS */
+/* MATERIALS & REQUESTS */
 let materials = JSON.parse(localStorage.getItem("materials")) || [];
+let purchaseRequests = JSON.parse(localStorage.getItem("purchaseRequests")) || [];
 const list = document.getElementById("materialList");
 const searchInput = document.getElementById("searchInput");
 
+/* RENDER MATERIALS */
 function render(items) {
   list.innerHTML = "";
 
@@ -158,7 +159,6 @@ function render(items) {
 
   items.forEach(i => {
     const isOwnItem = i.seller === currentUser;
-    
     const card = document.createElement('div');
     card.className = 'bg-white rounded-xl shadow p-4 space-y-1';
     card.innerHTML = `
@@ -170,44 +170,47 @@ function render(items) {
       <p class="text-xs text-gray-400">Seller: ${i.seller}</p>
       <div class="flex gap-2 mt-3"></div>
     `;
-    
-    const buttonContainer = card.querySelector('div');
-    
+    const btnContainer = card.querySelector('div');
+
     if (isOwnItem) {
+      const manageBtn = document.createElement('button');
+      manageBtn.className = 'bg-yellow-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-yellow-600';
+      manageBtn.innerHTML = '📬 Manage Requests';
+      manageBtn.onclick = () => showManageRequests(i.seller);
+      btnContainer.appendChild(manageBtn);
+
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'text-red-500 text-sm px-3 py-1 border border-red-500 rounded-lg hover:bg-red-50';
       deleteBtn.innerHTML = '❌ Delete';
       deleteBtn.onclick = () => removeItem(i.id);
-      buttonContainer.appendChild(deleteBtn);
+      btnContainer.appendChild(deleteBtn);
     } else {
       const requestBtn = document.createElement('button');
       requestBtn.className = 'bg-green-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-600';
       requestBtn.innerHTML = '📤 Send Request';
       requestBtn.onclick = () => sendRequest(i.id);
-      buttonContainer.appendChild(requestBtn);
+      btnContainer.appendChild(requestBtn);
     }
-    
+
     list.appendChild(card);
   });
 }
 
+/* REMOVE MATERIAL */
 window.removeItem = function(id) {
   materials = materials.filter(m => m.id !== id);
   localStorage.setItem("materials", JSON.stringify(materials));
   render(materials);
 }
 
+/* SEND PURCHASE REQUEST */
 window.sendRequest = function(itemId) {
   const item = materials.find(m => m.id === itemId);
-  
-  if (!item) {
-    alert("Item not found");
-    return;
-  }
+  if (!item) { alert("Item not found"); return; }
 
   const request = {
     id: Date.now(),
-    itemId: itemId,
+    itemId,
     itemName: item.name,
     buyer: currentUser,
     seller: item.seller,
@@ -218,30 +221,70 @@ window.sendRequest = function(itemId) {
     timestamp: new Date().toISOString(),
     status: "pending"
   };
+  purchaseRequests.push(request);
+  localStorage.setItem("purchaseRequests", JSON.stringify(purchaseRequests));
 
-  const requests = JSON.parse(localStorage.getItem("purchaseRequests")) || [];
-  requests.push(request);
-  localStorage.setItem("purchaseRequests", JSON.stringify(requests));
-
-  const requestPopup = document.getElementById("requestPopup");
-  requestPopup.classList.remove("hidden");
-  requestPopup.classList.add("flex");
+  document.getElementById("requestPopup").classList.remove("hidden");
+  document.getElementById("requestPopup").classList.add("flex");
 }
 
 window.closeRequestPopup = function() {
-  const requestPopup = document.getElementById("requestPopup");
-  requestPopup.classList.remove("flex");
-  requestPopup.classList.add("hidden");
+  const popup = document.getElementById("requestPopup");
+  popup.classList.remove("flex"); popup.classList.add("hidden");
 }
 
+/* MANAGE REQUESTS FOR SELLER */
+function showManageRequests(seller) {
+  const container = document.getElementById("pendingRequestsContainer");
+  container.innerHTML = "";
+
+  const pending = purchaseRequests.filter(r => r.seller === seller && r.status === "pending");
+  if (pending.length === 0) {
+    container.innerHTML = "<p class='text-gray-500'>No pending requests.</p>";
+  }
+
+  pending.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "p-3 border rounded-lg space-y-1";
+
+    div.innerHTML = `
+      <p><strong>${r.itemName}</strong> requested by <span class="text-primary">${r.buyer}</span></p>
+      <p>Qty: ${r.quantity} ${r.quantityUnit} • Price: ₹${r.price} ${r.priceUnit}</p>
+      <div class="flex gap-2 mt-1">
+        <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
+        <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
+      </div>
+    `;
+
+    const [approveBtn, rejectBtn] = div.querySelectorAll("button");
+    approveBtn.onclick = () => updateRequestStatus(r.id, "approved");
+    rejectBtn.onclick = () => updateRequestStatus(r.id, "rejected");
+
+    container.appendChild(div);
+  });
+
+  document.getElementById("manageRequestPopup").classList.remove("hidden");
+  document.getElementById("manageRequestPopup").classList.add("flex");
+}
+
+function updateRequestStatus(requestId, status) {
+  const request = purchaseRequests.find(r => r.id === requestId);
+  if (request) { request.status = status; }
+  localStorage.setItem("purchaseRequests", JSON.stringify(purchaseRequests));
+  showManageRequests(currentUser);
+}
+
+function closeManageRequestPopup() {
+  document.getElementById("manageRequestPopup").classList.remove("flex");
+  document.getElementById("manageRequestPopup").classList.add("hidden");
+}
+
+/* SEARCH MATERIALS */
 searchInput.addEventListener("input", () => {
   const q = searchInput.value.toLowerCase();
-  render(
-    materials.filter(m =>
-      m.name.toLowerCase().includes(q) ||
-      m.material.toLowerCase().includes(q)
-    )
-  );
+  render(materials.filter(m => 
+    m.name.toLowerCase().includes(q) || m.material.toLowerCase().includes(q)
+  ));
 });
 
 render(materials);
@@ -257,9 +300,7 @@ const chatSend = document.getElementById("chatSend");
 chatToggle.addEventListener("click", () => {
   chatWindow.classList.toggle("hidden");
   chatWindow.classList.toggle("flex");
-  if (!chatWindow.classList.contains("hidden")) {
-    chatInput.focus();
-  }
+  if (!chatWindow.classList.contains("hidden")) chatInput.focus();
 });
 
 chatClose.addEventListener("click", () => {
@@ -275,145 +316,29 @@ function addMessage(text, isUser = false) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-function handleGreeting(msg) {
-  const greetings = ['hi', 'hello', 'hey', 'namaste', 'hola', 'hii', 'hiii'];
-  const msgLower = msg.toLowerCase().trim();
-  
-  if (greetings.includes(msgLower)) {
-    const responses = [
-      "Hi there! 👋 Looking for any specific material?",
-      "Hello! 😊 How can I help you find materials today?",
-      "Hey! Ready to help you search for materials! What do you need?",
-      "Hi! 🤖 Tell me what material you're looking for!"
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
-  }
-  return null;
-}
-
-function searchMaterial(query) {
-  const queryLower = query.toLowerCase();
-  const found = materials.filter(m => {
-    const name = (m.name || '').toLowerCase();
-    const material = (m.material || '').toLowerCase();
-    const seller = (m.seller || '').toLowerCase();
-    const condition = (m.condition || '').toLowerCase();
-    const details = (m.details || '').toLowerCase();
-    
-    return name.includes(queryLower) || 
-           material.includes(queryLower) ||
-           seller.includes(queryLower) ||
-           condition.includes(queryLower) ||
-           details.includes(queryLower);
-  });
-  
-  console.log('Search query:', query);
-  console.log('Found materials:', found);
-  return found;
-}
-
 async function sendMessage() {
   const userMsg = chatInput.value.trim();
   if (!userMsg) return;
-
   addMessage(userMsg, true);
   chatInput.value = "";
 
-  const greetingResponse = handleGreeting(userMsg);
-  if (greetingResponse) {
-    setTimeout(() => addMessage(greetingResponse), 500);
-    return;
-  }
-
-  const foundMaterials = searchMaterial(userMsg);
-  
-  if (foundMaterials.length > 0) {
-    setTimeout(() => {
-      const item = foundMaterials[0];
-      
-      let message = `Great! I found "${item.name}" 🎉\n\n`;
-      message += `💰 Price: ₹${item.price} ${item.priceUnit}\n`;
-      message += `📦 Quantity: ${item.quantity} ${item.quantityUnit}\n`;
-      message += `✨ Condition: ${item.condition}\n`;
-      message += `🏷️ Material Type: ${item.material}\n`;
-      if (item.details) {
-        message += `📝 Details: ${item.details}\n`;
-      }
-      message += `👤 Seller: ${item.seller}`;
-      
-      addMessage(message);
-    }, 500);
-    return;
-  }
-
-  const typingDiv = document.createElement("div");
-  typingDiv.id = "typing";
-  typingDiv.className = "chat-message bg-blue-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]";
-  typingDiv.innerHTML = `<p class="text-sm">Typing...</p>`;
-  chatMessages.appendChild(typingDiv);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-
-  const materialKeywords = ['find', 'search', 'need', 'want', 'looking', 'get', 'buy', 'material', 'steel', 'iron', 'plastic', 'wood', 'metal', 'cement', 'rod', 'wire', 'scrap', 'aluminium', 'copper', 'glass'];
-  const seemsLikeMaterialSearch = materialKeywords.some(kw => userMsg.toLowerCase().includes(kw));
-
-  if (seemsLikeMaterialSearch) {
-    setTimeout(() => {
-      document.getElementById("typing")?.remove();
-      const notAvailableResponses = [
-        "😔 Sorry, that material is not available at the moment. Would you like me to notify you when it's in stock?",
-        "⚠️ Unfortunately, we don't have that material right now. Can I help you find something similar?",
-        "🔍 That material isn't available currently. Should I add it to your wishlist?",
-        "😕 Not in stock right now! But I can help you search for alternatives!"
-      ];
-      addMessage(notAvailableResponses[Math.floor(Math.random() * notAvailableResponses.length)]);
-    }, 800);
-    return;
-  }
-
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
     const inventoryData = materials.length > 0 
-      ? materials.map(m => `${m.name} (${m.material}, ₹${m.price} ${m.priceUnit}, ${m.condition})`).join(", ")
+      ? materials.map(m => `${m.name} (${m.material}, ₹${m.price} ${m.priceUnit})`).join(", ")
       : "No items in inventory";
-
-    const systemPrompt = `You are Loopy, LoopKart's friendly shopping assistant chatbot.
-Current user: ${currentUser}
-Available inventory: ${inventoryData}
-
-RULES:
-- Keep responses SHORT (1-2 sentences max)
-- Be helpful and friendly
-- Focus on helping users find materials
-- If you don't know something, say "I'm still learning that! But I can help you search for materials."
-
-Respond naturally to: ${userMsg}`;
-
+    const systemPrompt = `You are Loopy, LoopKart's shopping assistant. Inventory: ${inventoryData}. Respond to: ${userMsg}`;
     const result = await model.generateContent(systemPrompt);
     const response = result.response.text();
-
-    document.getElementById("typing")?.remove();
     addMessage(response);
-
-  } catch (err) {
-    console.error("Gemini Error:", err);
-    document.getElementById("typing")?.remove();
-    
-    const learningResponses = [
-      "🤔 Sorry, I'm still learning! I'm best at finding materials for you. Try asking about specific items!",
-      "😅 I'm still learning that! But I'm great at searching materials - try me with 'iron rods' or 'plastic'!",
-      "🎓 Still learning! Right now I can help you find materials in our inventory. What are you looking for?",
-      "💡 Hmm, I'm not sure about that yet! But I can definitely help you search for materials. What do you need?"
-    ];
-    addMessage(learningResponses[Math.floor(Math.random() * learningResponses.length)]);
+  } catch {
+    addMessage("🤔 I'm still learning! I can help you search materials.");
   }
 }
 
 chatSend.addEventListener("click", sendMessage);
-chatInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendMessage();
-});
+chatInput.addEventListener("keypress", e => { if(e.key==="Enter") sendMessage(); });
+
 </script>
-<script type="module" src="js/script.js"></script>
 </body>
 </html>
