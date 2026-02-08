@@ -18,6 +18,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  signOut,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 //================================
@@ -222,36 +223,65 @@ window.sendRequest = async function(productId) {
 // ===============================
 
 async function loadProfile() {
-
   const profileDiv = document.getElementById("profileInfo");
   if (!profileDiv) return;
 
   const user = auth.currentUser;
   if (!user) return;
 
-  const userDoc = await getDocs(
-    query(collection(db, "users"), where("__name__", "==", user.uid))
-  );
+  try {
+    // Query Firestore for the current user's document
+    const userQuery = query(collection(db, "users"), where("__name__", "==", user.uid));
+    const userDocs = await getDocs(userQuery);
 
-  userDoc.forEach(docSnap => {
-    const data = docSnap.data();
-    profileDiv.innerHTML = `
-      <p>Name: ${data.name}</p>
-      <p>Email: ${data.email}</p>
-      <p>Phone: ${data.phone}</p>
-    `;
-  });
+    if (userDocs.empty) {
+      profileDiv.innerHTML = "<p>No profile data found.</p>";
+      return;
+    }
+
+    // Since __name__ == UID, there will be only one document
+    userDocs.forEach(docSnap => {
+      const data = docSnap.data();
+
+      profileDiv.innerHTML = `
+        <p>Company Name: ${data.companyName || "-"}</p>
+        <p>GSTIN: ${data.gstin || "-"}</p>
+        <p>User Name: ${data.userName || "-"}</p>
+        <p>Designation: ${data.designation || "-"}</p>
+        <p>Mobile: ${data.mobile || "-"}</p>
+        <p>Email: ${data.email || "-"}</p>
+        <p>Address: ${data.address || "-"}</p>
+        <button id="logoutBtn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+          Logout
+        </button>
+      `;
+
+      // Attach logout functionality
+      const logoutBtn = document.getElementById("logoutBtn");
+      logoutBtn?.addEventListener("click", async () => {
+        try {
+          await signOut(auth);
+          alert("Logged out successfully!");
+          window.location.href = "index.html";
+        } catch (error) {
+          alert("Error logging out: " + error.message);
+        }
+      });
+    });
+  } catch (error) {
+    profileDiv.innerHTML = `<p>Error loading profile: ${error.message}</p>`;
+  }
 }
 
-onAuthStateChanged(auth, (user) => {
+// Call the function when the page loads
+auth.onAuthStateChanged(user => {
   if (user) {
     loadProfile();
+  } else {
+    // Redirect to login page if not logged in
+    window.location.href = "index.html";
   }
 });
-
-
-
-
 
 
 
