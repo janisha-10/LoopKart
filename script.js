@@ -223,65 +223,75 @@ window.sendRequest = async function(productId) {
 // ===============================
 
 async function loadProfile() {
-  const profileDiv = document.getElementById("profileInfo");
-  if (!profileDiv) return;
-
   const user = auth.currentUser;
   if (!user) return;
 
   try {
-    // Query Firestore for the current user's document
+    // Query user document
     const userQuery = query(collection(db, "users"), where("__name__", "==", user.uid));
     const userDocs = await getDocs(userQuery);
 
-    if (userDocs.empty) {
-      profileDiv.innerHTML = "<p>No profile data found.</p>";
-      return;
-    }
+    if (userDocs.empty) return;
 
-    // Since __name__ == UID, there will be only one document
     userDocs.forEach(docSnap => {
       const data = docSnap.data();
 
-      profileDiv.innerHTML = `
-        <p>Company Name: ${data.companyName || "-"}</p>
-        <p>GSTIN: ${data.gstin || "-"}</p>
-        <p>User Name: ${data.userName || "-"}</p>
-        <p>Designation: ${data.designation || "-"}</p>
-        <p>Mobile: ${data.mobile || "-"}</p>
-        <p>Email: ${data.email || "-"}</p>
-        <p>Address: ${data.address || "-"}</p>
-        <button id="logoutBtn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-          Logout
-        </button>
-      `;
-
-      // Attach logout functionality
-      const logoutBtn = document.getElementById("logoutBtn");
-      logoutBtn?.addEventListener("click", async () => {
-        try {
-          await signOut(auth);
-          alert("Logged out successfully!");
-          window.location.href = "index.html";
-        } catch (error) {
-          alert("Error logging out: " + error.message);
-        }
-      });
+      // Populate inputs
+      document.getElementById("profile-name").value = data.userName || "";
+      document.getElementById("profile-phone").value = data.mobile || "";
+      document.getElementById("profile-company").value = data.companyName || "";
+      document.getElementById("profile-gstin").value = data.gstin || "";
     });
   } catch (error) {
-    profileDiv.innerHTML = `<p>Error loading profile: ${error.message}</p>`;
+    alert("Error loading profile: " + error.message);
   }
 }
 
-// Call the function when the page loads
-auth.onAuthStateChanged(user => {
+// Save profile updates
+const saveProfileBtn = document.getElementById("saveProfileBtn");
+saveProfileBtn?.addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return alert("No user logged in.");
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+
+    const updatedData = {
+      userName: document.getElementById("profile-name").value.trim(),
+      mobile: document.getElementById("profile-phone").value.trim(),
+      companyName: document.getElementById("profile-company").value.trim(),
+      gstin: document.getElementById("profile-gstin").value.trim(),
+    };
+
+    await updateDoc(userRef, updatedData);
+    alert("Profile updated successfully!");
+  } catch (error) {
+    alert("Error updating profile: " + error.message);
+  }
+});
+
+// Logout
+const logoutBtn = document.getElementById("logoutBtn");
+logoutBtn?.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    alert("Logged out successfully!");
+    window.location.href = "index.html";
+  } catch (error) {
+    alert("Error logging out: " + error.message);
+  }
+});
+
+// Load profile on page load if user is logged in
+onAuthStateChanged(auth, user => {
   if (user) {
     loadProfile();
   } else {
-    // Redirect to login page if not logged in
+    // Redirect to login if not logged in
     window.location.href = "index.html";
   }
 });
+
 
 
 
