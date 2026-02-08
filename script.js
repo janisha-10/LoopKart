@@ -189,11 +189,16 @@ async function loadUsername() {
 
 // Automatically update when auth state changes
 onAuthStateChanged(auth, user => {
+  const currentPage = window.location.pathname;
+
   if (user) {
+    // User is logged in, load their username
     loadUsername();
   } else {
-    // If user is not logged in, redirect to login page
-    window.location.href = "index.html";
+    // If user is not logged in AND not already on index.html, redirect
+    if (!currentPage.includes("index.html")) {
+      window.location.href = "index.html";
+    }
   }
 });
 
@@ -324,6 +329,7 @@ onAuthStateChanged(auth, user => {
     window.location.href = "index.html";
   }
 });
+
 
 
 
