@@ -320,7 +320,7 @@ logoutBtn?.addEventListener("click", async () => {
     alert("Error logging out: " + error.message);
   }
 });
-
+/*
 // Load profile on page load if user is logged in
 onAuthStateChanged(auth, user => {
   if (user) {
@@ -329,7 +329,8 @@ onAuthStateChanged(auth, user => {
     // Redirect to login if not logged in
     window.location.href = "index.html";
   }
-});
+});*/
+
 
 
 
