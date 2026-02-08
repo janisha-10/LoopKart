@@ -274,7 +274,7 @@ function updateRequestStatus(requestId, status) {
   showManageRequests(currentUser);
 }
 
-function closeManageRequestPopup() {
+window.closeManageRequestPopup = function() {
   document.getElementById("manageRequestPopup").classList.remove("flex");
   document.getElementById("manageRequestPopup").classList.add("hidden");
 }
