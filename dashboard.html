@@ -284,6 +284,26 @@ function addMessage(text,isUser=false){
   chatMessages.appendChild(div);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+// CHATBOT SEND FUNCTION
+chatSend.addEventListener("click", ()=>{ sendChat(chatInput.value); });
+chatInput.addEventListener("keypress", e=>{ if(e.key==="Enter") sendChat(chatInput.value); });
+
+async function sendChat(msg){
+  if(!msg.trim()) return;
+  addMessage(msg,true);  // show user message
+  chatInput.value="";
+
+  try {
+    // Simulated AI response
+    const response = await new Promise(resolve=>{
+      setTimeout(()=>resolve(`🤖 Loopy says: I found results for "${msg}"`), 500);
+    });
+    addMessage(response);
+  } catch(err){
+    console.error(err);
+    addMessage("🤔 Sorry! I couldn't process that.");
+  }
+}
 
 // send user message
 chatSend.addEventListener("click", ()=>{ sendChat(chatInput.value); });
