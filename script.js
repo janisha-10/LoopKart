@@ -195,10 +195,11 @@ onAuthStateChanged(auth, user => {
     // User is logged in, load their username
     loadUsername();
   } else {
-    // If user is not logged in AND not already on index.html, redirect
+    // Only redirect if user is not logged in AND NOT already on the login/index page
     if (!currentPage.includes("index.html")) {
       window.location.href = "index.html";
     }
+    // If already on index.html, do nothing — prevents reload loops
   }
 });
 
@@ -329,6 +330,7 @@ onAuthStateChanged(auth, user => {
     window.location.href = "index.html";
   }
 });
+
 
 
 
