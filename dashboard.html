@@ -94,9 +94,10 @@
   <div class="bg-white rounded-xl p-6 text-center w-80 max-h-[70vh] overflow-y-auto">
     <h2 class="text-lg font-semibold mb-2">📬 Pending Requests</h2>
     <div id="pendingRequestsContainer" class="space-y-3 text-left"></div>
-    <button type="button" onclick="closeManageRequestPopup()" class="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 mt-4">Close</button>
+    <button id="closeManagePopupBtn" class="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 mt-4">Close</button>
   </div>
 </div>
+
 
 <!-- CHATBOT WINDOW -->
 <div id="chatWindow" class="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl hidden flex-col z-50 overflow-hidden">
@@ -256,10 +257,13 @@ function updateRequestStatus(requestId, status) {
   showManageRequests(currentUser);
 }
 
-function closeManageRequestPopup() {
-  document.getElementById("manageRequestPopup").classList.remove("flex");
-  document.getElementById("manageRequestPopup").classList.add("hidden");
-}
+const closeManagePopupBtn = document.getElementById("closeManagePopupBtn");
+closeManagePopupBtn.addEventListener("click", () => {
+  const popup = document.getElementById("manageRequestPopup");
+  popup.classList.add("hidden");
+  popup.classList.remove("flex");
+});
+
 
 /* SEARCH MATERIALS */
 searchInput.addEventListener("input", () => {
