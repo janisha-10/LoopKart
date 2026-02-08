@@ -6,7 +6,6 @@
   <title>Dashboard | LoopKart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -50,8 +49,7 @@
 <section class="px-6 py-4">
   <div class="bg-white rounded-xl shadow p-4 flex gap-4 flex-wrap">
     <a href="requests.html" class="px-5 py-2 bg-primary text-white rounded-lg">📄 Requests</a>
-    <a href="add.html" class="px-5 py-2 bg-gray-200 rounded-lg">➕ Add</a>
-    <button type="button" id="chatToggle" class="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">🤖 Bot</button>
+    <a href="add.html" class="px-5 py-2 bg-gray-200 rounded-lg">➕ Add Material</a>
   </div>
 </section>
 
@@ -84,12 +82,12 @@
 <div id="requestPopup" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
   <div class="bg-white rounded-xl p-6 text-center w-80">
     <h2 class="text-lg font-semibold mb-2">✅ Request Sent</h2>
-    <p class="text-gray-600 mb-4">Your purchase request has been sent to the seller successfully!</p>
+    <p class="text-gray-600 mb-4">Your purchase request has been sent successfully!</p>
     <button type="button" onclick="closeRequestPopup()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">OK</button>
   </div>
 </div>
 
-<!-- SELLER REQUEST MANAGEMENT POPUP -->
+<!-- MANAGE REQUEST POPUP -->
 <div id="manageRequestPopup" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
   <div class="bg-white rounded-xl p-6 text-center w-80 max-h-[70vh] overflow-y-auto">
     <h2 class="text-lg font-semibold mb-2">📬 Pending Requests</h2>
@@ -98,51 +96,24 @@
   </div>
 </div>
 
-<!-- CHATBOT WINDOW -->
-<div id="chatWindow" class="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl hidden flex-col z-50 overflow-hidden">
-  <div class="bg-gradient-to-r from-blue-600 to-primary text-white p-4 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <span class="text-2xl">🪄</span>
-      <div>
-        <h3 class="font-bold">Loopy - LoopKart AI</h3>
-        <p class="text-xs opacity-90">Your Shopping Assistant</p>
-      </div>
-    </div>
-    <button type="button" id="chatClose" class="text-2xl hover:scale-110 transition-transform">✕</button>
-  </div>
-
-  <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-    <div class="chat-message bg-blue-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]">
-      <p class="text-sm">Hello! I am Loopy 🤖 I can help you find materials.</p>
-    </div>
-  </div>
-
-  <div class="p-4 border-t bg-white">
-    <div class="flex gap-2">
-      <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-primary" />
-      <button type="button" id="chatSend" class="bg-primary text-white px-5 py-2 rounded-full font-bold hover:bg-blue-600 transition-colors">➤</button>
-    </div>
-  </div>
-</div>
-
-<script type="module">
-// =================== DASHBOARD USER ===================
+<script>
+// ===== DASHBOARD USER =====
 const currentUser = localStorage.getItem("username") || "Anonymous";
 document.getElementById("dashboardUsername").innerText = currentUser;
 
-// =================== MATERIALS & REQUESTS ===================
+// ===== MATERIALS & REQUESTS =====
 let materials = JSON.parse(localStorage.getItem("materials")) || [];
 let purchaseRequests = JSON.parse(localStorage.getItem("purchaseRequests")) || [];
 const list = document.getElementById("materialList");
 const searchInput = document.getElementById("searchInput");
 
-// =================== RENDER MATERIALS ===================
+// ===== RENDER MATERIALS =====
 function render(items){
   list.innerHTML = "";
-  if(items.length===0){ list.innerHTML=`<p class="text-gray-500">No materials found.</p>`; return; }
+  if(!items.length){ list.innerHTML="<p class='text-gray-500'>No materials found.</p>"; return; }
 
   items.forEach(i=>{
-    const isOwn = i.seller===currentUser;
+    const isOwn = i.seller === currentUser;
     const card = document.createElement('div');
     card.className='bg-white rounded-xl shadow p-4 space-y-1';
     card.innerHTML=`
@@ -183,48 +154,47 @@ function render(items){
   });
 }
 
-// =================== REMOVE ITEM ===================
-window.removeItem=function(id){
-  materials=materials.filter(m=>m.id!==id);
+// ===== REMOVE ITEM =====
+function removeItem(id){
+  materials = materials.filter(m=>m.id!==id);
   localStorage.setItem("materials",JSON.stringify(materials));
   render(materials);
 }
 
-// =================== SEND REQUEST ===================
-window.sendRequest=function(itemId){
-  const item=materials.find(m=>m.id===itemId);
+// ===== SEND REQUEST =====
+function sendRequest(itemId){
+  const item = materials.find(m=>m.id===itemId);
   if(!item){ alert("Item not found"); return; }
-  const req={
-    id:Date.now(),
+  const req = {
+    id: Date.now(),
     itemId,
-    itemName:item.name,
-    buyer:currentUser,
-    seller:item.seller,
-    price:item.price,
-    priceUnit:item.priceUnit,
-    quantity:item.quantity,
-    quantityUnit:item.quantityUnit,
-    timestamp:new Date().toISOString(),
-    status:"pending"
+    itemName: item.name,
+    buyer: currentUser,
+    seller: item.seller,
+    price: item.price,
+    priceUnit: item.priceUnit,
+    quantity: item.quantity,
+    quantityUnit: item.quantityUnit,
+    timestamp: new Date().toISOString(),
+    status: "pending"
   };
   purchaseRequests.push(req);
   localStorage.setItem("purchaseRequests",JSON.stringify(purchaseRequests));
-  document.getElementById("requestPopup").classList.remove("hidden");
-  document.getElementById("requestPopup").classList.add("flex");
+  const popup = document.getElementById("requestPopup");
+  popup.classList.remove("hidden");
+  popup.classList.add("flex");
 }
-window.closeRequestPopup=function(){
+function closeRequestPopup(){
   const popup=document.getElementById("requestPopup");
-  popup.classList.add("hidden");
-  popup.classList.remove("flex");
+  popup.classList.add("hidden"); popup.classList.remove("flex");
 }
 
-// =================== MANAGE REQUESTS ===================
+// ===== MANAGE REQUESTS =====
 function showManageRequests(seller){
   const container=document.getElementById("pendingRequestsContainer");
   container.innerHTML="";
-
-  const pending=purchaseRequests.filter(r=>r.seller===seller && r.status==="pending");
-  if(pending.length===0) container.innerHTML="<p class='text-gray-500'>No pending requests.</p>";
+  const pending = purchaseRequests.filter(r=>r.seller===seller && r.status==="pending");
+  if(!pending.length) container.innerHTML="<p class='text-gray-500'>No pending requests.</p>";
 
   pending.forEach(r=>{
     const div=document.createElement("div");
@@ -238,101 +208,34 @@ function showManageRequests(seller){
       </div>
     `;
     const [approveBtn,rejectBtn]=div.querySelectorAll("button");
-    approveBtn.onclick=()=>updateRequestStatus(r.id,"approved");
-    rejectBtn.onclick=()=>updateRequestStatus(r.id,"rejected");
+    approveBtn.onclick = ()=>updateRequestStatus(r.id,"approved");
+    rejectBtn.onclick = ()=>updateRequestStatus(r.id,"rejected");
     container.appendChild(div);
   });
 
-  document.getElementById("manageRequestPopup").classList.remove("hidden");
-  document.getElementById("manageRequestPopup").classList.add("flex");
+  const popup=document.getElementById("manageRequestPopup");
+  popup.classList.remove("hidden"); popup.classList.add("flex");
 }
+
 function updateRequestStatus(id,status){
   const req=purchaseRequests.find(r=>r.id===id);
   if(req) req.status=status;
   localStorage.setItem("purchaseRequests",JSON.stringify(purchaseRequests));
   showManageRequests(currentUser);
 }
+
 document.getElementById("closeManagePopupBtn").addEventListener("click",()=>{
   const popup=document.getElementById("manageRequestPopup");
-  popup.classList.add("hidden");
-  popup.classList.remove("flex");
+  popup.classList.add("hidden"); popup.classList.remove("flex");
 });
 
-// =================== SEARCH ===================
+// ===== SEARCH =====
 searchInput.addEventListener("input",()=>{
-  const q=searchInput.value.toLowerCase();
-  render(materials.filter(m=>m.name.toLowerCase().includes(q)||m.material.toLowerCase().includes(q)));
+  const q = searchInput.value.toLowerCase();
+  render(materials.filter(m=>m.name.toLowerCase().includes(q) || m.material.toLowerCase().includes(q)));
 });
 
 render(materials);
-
-// =================== CHATBOT ===================
-const chatToggle=document.getElementById("chatToggle");
-const chatWindow=document.getElementById("chatWindow");
-const chatClose=document.getElementById("chatClose");
-const chatMessages=document.getElementById("chatMessages");
-const chatInput=document.getElementById("chatInput");
-const chatSend=document.getElementById("chatSend");
-
-chatToggle.addEventListener("click",()=>{
-  chatWindow.classList.toggle("hidden");
-  chatWindow.classList.toggle("flex");
-  if(!chatWindow.classList.contains("hidden")) chatInput.focus();
-});
-chatClose.addEventListener("click",()=>{
-  chatWindow.classList.add("hidden");
-  chatWindow.classList.remove("flex");
-});
-
-function addMessage(text,isUser=false){
-  const msgDiv=document.createElement("div");
-  msgDiv.className=`chat-message ${isUser?'bg-primary text-white ml-auto rounded-tl-2xl':'bg-blue-100 rounded-tl-none'} rounded-2xl p-3 max-w-[80%]`;
-  msgDiv.innerHTML=`<p class="text-sm whitespace-pre-line">${text}</p>`;
-  chatMessages.appendChild(msgDiv);
-  chatMessages.scrollTop=chatMessages.scrollHeight;
-}
-
-// ========== SEND CHAT ==========
-chatSend.addEventListener("click",()=>{ sendChat(chatInput.value); });
-chatInput.addEventListener("keypress",e=>{ if(e.key==="Enter") sendChat(chatInput.value); });
-
-async function sendChat(msg){
-  if(!msg.trim()) return;
-  addMessage(msg,true);
-  chatInput.value="";
-
-  const text = msg.toLowerCase().trim();
-  const greetings = ["hi","hello","hey","good morning","good evening","good afternoon"];
-  
-  // Check greetings
-  if(greetings.some(g => text.includes(g))){
-    addMessage("Hello! 👋 I can help you find materials in LoopKart.");
-    return;
-  }
-
-  // Search local inventory first
-  const found = materials.filter(m=>m.name.toLowerCase().includes(text)||m.material.toLowerCase().includes(text));
-  if(found.length>0){
-    const response = found.map(m=>`${m.name} (${m.material}) - Qty: ${m.quantity} ${m.quantityUnit}, Price: ₹${m.price} ${m.priceUnit}`).join("\n");
-    addMessage(response);
-    return;
-  }
-
-  // Otherwise use AI API
-  try{
-    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
-    const API_KEY="YOUR_API_KEY_HERE"; // Replace with your real API key
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({model:"gemini-1.5-flash"});
-    const inventoryData = materials.length>0 ? materials.map(m=>`${m.name} (${m.material}, ₹${m.price} ${m.priceUnit})`).join(", ") : "No items in inventory";
-    const systemPrompt = `You are Loopy, LoopKart's assistant. Inventory: ${inventoryData}. Respond to: ${msg}`;
-    const result = await model.generateContent(systemPrompt);
-    const response = result.response.text();
-    addMessage(response);
-  }catch{
-    addMessage("🤔 I'm still learning! I can help you search materials.");
-  }
-}
 </script>
 
 </body>
