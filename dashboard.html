@@ -6,7 +6,12 @@
   <title>Dashboard | LoopKart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom Dashboard CSS -->
+  <link rel="stylesheet" href="dashboard.css">
+
   <script>
     tailwind.config = {
       theme: {
@@ -20,6 +25,7 @@
       }
     }
   </script>
+
   <style>
     @keyframes slideUp {
       from { transform: translateY(20px); opacity: 0; }
@@ -28,6 +34,7 @@
     .chat-message { animation: slideUp 0.3s ease-out; }
   </style>
 </head>
+
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
