@@ -163,6 +163,39 @@ if (addProductForm) {
   });
 }
 
+//username
+//welcome person
+const usernameSpan = document.getElementById("dashboardUsername");
+
+async function loadUsername() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    const userQuery = query(collection(db, "users"), where("__name__", "==", user.uid));
+    const userDocs = await getDocs(userQuery);
+
+    if (!userDocs.empty) {
+      userDocs.forEach(docSnap => {
+        const data = docSnap.data();
+        usernameSpan.textContent = data.userName || "User";
+      });
+    }
+  } catch (error) {
+    console.error("Error loading username:", error);
+    usernameSpan.textContent = "User";
+  }
+}
+
+// Automatically update when auth state changes
+onAuthStateChanged(auth, user => {
+  if (user) {
+    loadUsername();
+  } else {
+    // If user is not logged in, redirect to login page
+    window.location.href = "index.html";
+  }
+});
 
 // ===============================
 // LOAD PRODUCTS (Dashboard)
@@ -291,6 +324,7 @@ onAuthStateChanged(auth, user => {
     window.location.href = "index.html";
   }
 });
+
 
 
 
