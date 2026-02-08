@@ -275,9 +275,14 @@ function updateRequestStatus(requestId, status) {
 }
 
 window.closeManageRequestPopup = function() {
-  document.getElementById("manageRequestPopup").classList.remove("flex");
-  document.getElementById("manageRequestPopup").classList.add("hidden");
+  const popup = document.getElementById("manageRequestPopup");
+  popup.classList.remove("flex");
+  popup.classList.add("hidden");
+  
+  // Refresh materials after closing
+  render(materials);
 }
+
 
 /* SEARCH MATERIALS */
 searchInput.addEventListener("input", () => {
