@@ -1,0 +1,23 @@
+/* dashboard.css */
+
+/* Top navigation / header */
+header {
+  background-color: #A8E6CF; /* pastel green */
+  border-bottom: 1px solid #d1e7d6; /* optional subtle border */
+}
+
+/* Keep text readable */
+header span,
+header a {
+  color: #0B1C2D; /* dark text for contrast */
+}
+
+/* Optional hover effect for links */
+header a:hover {
+  color: #056D4B; /* darker green on hover */
+}
+
+/* Keep sticky shadow subtle */
+header.shadow {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
